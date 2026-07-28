@@ -4,5 +4,4 @@
   <Project Path="LibraryManagement.Domain/LibraryManagement.Domain.csproj" />
   <Project Path="LibraryManagement.Infrastructure/LibraryManagement.Infrastructure.csproj" />
   <Project Path="LibraryManagement.Tests/LibraryManagement.Tests.csproj" />
-  <Project Path="LibraryManagement.Contracts/LibraryManagement.Contracts.csproj" />
 </Solution>
