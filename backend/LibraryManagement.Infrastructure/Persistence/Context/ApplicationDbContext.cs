@@ -39,9 +39,6 @@ public class ApplicationDbContext : DbContext
         ConfigureEnumConversions(modelBuilder);
     }
 
-    /// <summary>
-    /// Configure soft delete and audit properties for all AuditableEntity types
-    /// </summary>
     private static void ConfigureAuditableEntities(ModelBuilder modelBuilder)
     {
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
@@ -59,9 +56,6 @@ public class ApplicationDbContext : DbContext
         }
     }
 
-    /// <summary>
-    /// Soft delete filter - exclude entities where DeletedAt is not null
-    /// </summary>
     private static System.Linq.Expressions.LambdaExpression GetSoftDeleteFilter<T>()
         where T : AuditableEntity
     {
@@ -69,9 +63,6 @@ public class ApplicationDbContext : DbContext
         return filter;
     }
 
-    /// <summary>
-    /// Configure enum to integer conversions for enum properties
-    /// </summary>
     private static void ConfigureEnumConversions(ModelBuilder modelBuilder)
     {
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
