@@ -1,0 +1,27 @@
+<div class="page">
+  <div class="page-header">
+    <button class="btn btn-back" (click)="onBack()">← Back to Members</button>
+    <h2>Member Details</h2>
+    <button class="btn btn-primary" *ngIf="member" (click)="onEdit()">Edit Member</button>
+  </div>
+  <app-toast [toasts]="toastMessages" (dismiss)="onDismissToast($event)"></app-toast>
+  <div class="error-message" *ngIf="errorMessage">{{ errorMessage }}</div>
+  <div class="loading" *ngIf="loading"><app-spinner [loading]="true"></app-spinner><p>Loading member...</p></div>
+
+  <div class="detail-card" *ngIf="member && !loading">
+    <div class="detail-header">
+      <h3>{{ member.fullName }}</h3>
+      <span class="badge">{{ member.activeBorrows > 0 ? member.activeBorrows + ' active' : 'No borrows' }}</span>
+    </div>
+    <div class="detail-grid">
+      <div class="detail-item"><span class="detail-label">Membership #</span><span class="detail-value">{{ member.membershipNumber }}</span></div>
+      <div class="detail-item"><span class="detail-label">Email</span><span class="detail-value">{{ member.email }}</span></div>
+      <div class="detail-item"><span class="detail-label">Phone</span><span class="detail-value">{{ member.phoneNumber || '—' }}</span></div>
+      <div class="detail-item"><span class="detail-label">Address</span><span class="detail-value">{{ member.address }}</span></div>
+      <div class="detail-item"><span class="detail-label">Total Borrows</span><span class="detail-value">{{ member.totalBorrows }}</span></div>
+      <div class="detail-item"><span class="detail-label">Overdue</span><span class="detail-value">{{ member.overdueBorrows }}</span></div>
+      <div class="detail-item"><span class="detail-label">Joined</span><span class="detail-value">{{ formatDate(member.joinedDate) }}</span></div>
+      <div class="detail-item"><span class="detail-label">ID</span><span class="detail-value detail-id">{{ member.id }}</span></div>
+    </div>
+  </div>
+</div>

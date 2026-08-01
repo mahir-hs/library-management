@@ -27,3 +27,10 @@ public record UpdateBookCommand(
 ) : IRequest<BookDto>;
 
 public record DeleteBookCommand(Guid Id) : IRequest<bool>;
+
+public record AddBookCopiesCommand(
+    Guid BookId,
+    int Quantity,
+    Guid BranchId,
+    string ShelfLocation
+) : IRequest<BookDto>;

@@ -1,0 +1,69 @@
+<div class="page">
+  <div class="page-header">
+    <h2>Reservations</h2>
+  </div>
+
+  <app-toast [toasts]="toastMessages" (dismiss)="onDismissToast($event)"></app-toast>
+
+  <div class="error-message" *ngIf="errorMessage">
+    {{ errorMessage }}
+    <button (click)="loadReservations()">Retry</button>
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    <app-spinner [loading]="true"></app-spinner>
+    <p>Loading reservations...</p>
+  </div>
+
+  <div class="table-container" *ngIf="!loading && pagination">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Book</th>
+          <th>Member</th>
+          <th>ISBN</th>
+          <th>Status</th>
+          <th>Position</th>
+          <th>Reserved</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (res of reservations; track res.id) {
+          <tr>
+            <td>{{ res.bookTitle }}</td>
+            <td>{{ res.memberName }}</td>
+            <td>{{ res.isbn }}</td>
+            <td>
+              <span class="badge" [class]="getStatusBadge(res.status)">
+                {{ res.status }}
+              </span>
+            </td>
+            <td>#{{ res.positionInQueue }}</td>
+            <td>{{ res.reservedAt | date:'mediumDate' }}</td>
+            <td class="actions">
+              @if (res.status === 'Pending') {
+                <button class="btn btn-sm btn-fulfill" (click)="onFulfill(res)">Fulfill</button>
+                <button class="btn btn-sm btn-cancel" (click)="onCancel(res)">Cancel</button>
+              }
+            </td>
+          </tr>
+        }
+        @if (reservations.length === 0) {
+          <tr>
+            <td colspan="7" class="empty-state">No reservations found</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination" *ngIf="pagination && !loading">
+    <div class="pagination-info">Showing {{ reservations.length }} of {{ pagination.totalCount }}</div>
+    <div class="pagination-controls">
+      <button class="btn btn-sm" [disabled]="currentPage <= 1" (click)="onPageChange(currentPage - 1)">← Prev</button>
+      <span class="page-indicator">Page {{ currentPage }} of {{ totalPages }}</span>
+      <button class="btn btn-sm" [disabled]="currentPage >= totalPages" (click)="onPageChange(currentPage + 1)">Next →</button>
+    </div>
+  </div>
+</div>

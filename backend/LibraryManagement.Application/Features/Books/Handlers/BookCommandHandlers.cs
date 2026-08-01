@@ -79,6 +79,94 @@ public class CreateBookCommandHandler : IRequestHandler<CreateBookCommand, BookD
     }
 }
 
+public class AddBookCopiesCommandHandler : IRequestHandler<AddBookCopiesCommand, BookDto>
+{
+    private readonly IUnitOfWork _unitOfWork;
+
+    public AddBookCopiesCommandHandler(IUnitOfWork unitOfWork)
+    {
+        _unitOfWork = unitOfWork;
+    }
+
+    public async Task<BookDto> Handle(AddBookCopiesCommand request, CancellationToken cancellationToken)
+    {
+        var book = await _unitOfWork.Books.GetByIdAsync(request.BookId, cancellationToken);
+        if (book is null)
+        {
+            throw new NotFoundException("Book", request.BookId);
+        }
+
+        if (request.Quantity <= 0)
+        {
+            throw new ValidationException("Quantity must be greater than zero");
+        }
+
+        var branch = await _unitOfWork.Branchs.GetByIdAsync(request.BranchId, cancellationToken);
+        if (branch is null)
+        {
+            throw new NotFoundException("Branch", request.BranchId);
+        }
+
+        // Find the max existing barcode number to generate unique barcodes
+        var allCopies = await _unitOfWork.BookCopies.GetAsync(new BookCopiesByBookSpecification(request.BookId), cancellationToken);
+        int maxBarcodeNumber = 0;
+        foreach (var copy in allCopies)
+        {
+            if (copy.Barcode.StartsWith("BK-CP-") && copy.Barcode.Length > 6)
+            {
+                if (int.TryParse(copy.Barcode.Substring(6), out int num) && num > maxBarcodeNumber)
+                {
+                    maxBarcodeNumber = num;
+                }
+            }
+        }
+
+        var newCopies = new List<BookCopy>();
+        for (int i = 1; i <= request.Quantity; i++)
+        {
+            maxBarcodeNumber++;
+            newCopies.Add(new BookCopy
+            {
+                BookId = request.BookId,
+                Barcode = $"BK-CP-{maxBarcodeNumber:D5}",
+                Status = BookCopyStatus.Available,
+                ShelfLocation = request.ShelfLocation,
+                AcquiredDate = DateTimeOffset.UtcNow,
+                BranchId = request.BranchId,
+                CreatedAt = DateTimeOffset.UtcNow
+            });
+        }
+
+        await _unitOfWork.BookCopies.AddRangeAsync(newCopies, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        // Reload copies to get the full count including newly added ones
+        var updatedCopies = await _unitOfWork.BookCopies.GetAsync(new BookCopiesByBookSpecification(request.BookId), cancellationToken);
+        var availableCopies = updatedCopies.Count(c => c.Status == BookCopyStatus.Available);
+
+        // Load author and category for response
+        var author = await _unitOfWork.Authors.GetByIdAsync(book.AuthorId, cancellationToken);
+        var category = await _unitOfWork.Categories.GetByIdAsync(book.CategoryId, cancellationToken);
+
+        return new BookDto
+        {
+            Id = book.Id,
+            Title = book.Title,
+            ISBN = book.ISBN,
+            Description = book.Description,
+            Publisher = book.Publisher,
+            PublishedYear = book.PublishedYear,
+            Language = book.Language,
+            ImageUrl = book.ImageUrl,
+            AuthorName = author?.Name ?? string.Empty,
+            CategoryName = category?.Name ?? string.Empty,
+            TotalCopies = updatedCopies.Count,
+            AvailableCopies = availableCopies,
+            CreatedAt = book.CreatedAt.DateTime
+        };
+    }
+}
+
 public class UpdateBookCommandHandler : IRequestHandler<UpdateBookCommand, BookDto>
 {
     private readonly IUnitOfWork _unitOfWork;

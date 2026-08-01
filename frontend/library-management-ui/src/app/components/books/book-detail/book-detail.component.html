@@ -1,0 +1,75 @@
+<div class="page">
+  <div class="page-header">
+    <button class="btn btn-back" (click)="onBack()">← Back to Books</button>
+    <h2>Book Details</h2>
+    <button class="btn btn-primary" *ngIf="book" (click)="onEdit()">Edit Book</button>
+  </div>
+
+  <app-toast [toasts]="toastMessages" (dismiss)="onDismissToast($event)"></app-toast>
+
+  <div class="error-message" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    <app-spinner [loading]="true"></app-spinner>
+    <p>Loading book details...</p>
+  </div>
+
+  <div class="detail-card" *ngIf="book && !loading">
+    <div class="detail-header">
+      <h3>{{ book.title }}</h3>
+      <span class="badge" [class]="book.availableCopies > 0 ? 'badge-available' : 'badge-unavailable'">
+        {{ book.availableCopies > 0 ? book.availableCopies + ' available' : 'Unavailable' }}
+      </span>
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail-item">
+        <span class="detail-label">ISBN</span>
+        <span class="detail-value">{{ book.isbn }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Author</span>
+        <span class="detail-value">{{ book.authorName }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Category</span>
+        <span class="detail-value">{{ book.categoryName }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Publisher</span>
+        <span class="detail-value">{{ book.publisher || '—' }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Published Year</span>
+        <span class="detail-value">{{ book.publishedYear || '—' }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Language</span>
+        <span class="detail-value">{{ book.language || '—' }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Total Copies</span>
+        <span class="detail-value">{{ book.totalCopies }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Available Copies</span>
+        <span class="detail-value">{{ book.availableCopies }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Created</span>
+        <span class="detail-value">{{ formatDate(book.createdAt) }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">ID</span>
+        <span class="detail-value detail-id">{{ book.id }}</span>
+      </div>
+    </div>
+
+    <div class="detail-description" *ngIf="book.description">
+      <h4>Description</h4>
+      <p>{{ book.description }}</p>
+    </div>
+  </div>
+</div>

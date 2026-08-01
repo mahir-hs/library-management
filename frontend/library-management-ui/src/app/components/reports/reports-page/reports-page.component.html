@@ -1,0 +1,140 @@
+<div class="page">
+  <h2>Reports</h2>
+
+  <app-toast [toasts]="toastMessages" (dismiss)="onDismissToast($event)"></app-toast>
+
+  <div class="error-message" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    <app-spinner [loading]="true"></app-spinner>
+    <p>Loading reports...</p>
+  </div>
+
+  <div class="tabs" *ngIf="!loading">
+    <button class="tab" [class.active]="activeTab === 'borrow-history'" (click)="activeTab = 'borrow-history'">Borrow History</button>
+    <button class="tab" [class.active]="activeTab === 'overdue'" (click)="activeTab = 'overdue'">Overdue Books</button>
+    <button class="tab" [class.active]="activeTab === 'member-activity'" (click)="activeTab = 'member-activity'">Member Activity</button>
+  </div>
+
+  <!-- Borrow History Tab -->
+  <div class="tab-content" *ngIf="activeTab === 'borrow-history'">
+    <div class="search-bar">
+      <input type="date" [(ngModel)]="startDate" placeholder="From date">
+      <input type="date" [(ngModel)]="endDate" placeholder="To date">
+      <button class="btn btn-search" (click)="onSearchBorrowHistory()">Search</button>
+    </div>
+
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Book</th>
+            <th>Member</th>
+            <th>Borrowed</th>
+            <th>Due Date</th>
+            <th>Returned</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of borrowHistory; track item.id) {
+            <tr>
+              <td>{{ item.bookTitle }}</td>
+              <td>{{ item.memberName }}</td>
+              <td>{{ item.borrowedDate | date:'mediumDate' }}</td>
+              <td>{{ item.dueDate | date:'mediumDate' }}</td>
+              <td>{{ item.returnedDate ? item.returnedDate | date:'mediumDate' : '—' }}</td>
+              <td>
+                <span class="badge" [class]="item.status === 'Returned' ? 'badge-returned' : item.status === 'Overdue' ? 'badge-overdue' : 'badge-active'">
+                  {{ item.status }}
+                </span>
+              </td>
+            </tr>
+          }
+          @if (borrowHistory.length === 0) {
+            <tr><td colspan="6" class="empty-state">No borrow history found</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Overdue Tab -->
+  <div class="tab-content" *ngIf="activeTab === 'overdue'">
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Book</th>
+            <th>Member</th>
+            <th>Days Overdue</th>
+            <th>Fine</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of overdueBooks; track item.id) {
+            <tr class="overdue-row">
+              <td>{{ item.bookTitle }}</td>
+              <td>{{ item.memberName }}</td>
+              <td>{{ item.daysOverdue }}</td>
+              <td>{{ item.fineAmount > 0 ? '$' + item.fineAmount : '—' }}</td>
+            </tr>
+          }
+          @if (overdueBooks.length === 0) {
+            <tr><td colspan="4" class="empty-state">No overdue books</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Member Activity Tab -->
+  <div class="tab-content" *ngIf="activeTab === 'member-activity'">
+    <div class="search-bar">
+      <input type="text" placeholder="Member ID" [(ngModel)]="memberSearchId">
+      <button class="btn btn-search" (click)="loadMemberActivity()">Search</button>
+    </div>
+
+    <div class="summary-cards" *ngIf="memberSummary">
+      <div class="card">
+        <div class="card-content">
+          <h3>{{ memberSummary.activeBorrows }}</h3>
+          <p>Active Borrows</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-content">
+          <h3>{{ memberSummary.overdueCount }}</h3>
+          <p>Overdue</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-container" *ngIf="memberActivity.length > 0">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Member</th>
+            <th>Total Borrows</th>
+            <th>Active</th>
+            <th>Overdue</th>
+            <th>Total Fines</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of memberActivity; track item.memberId) {
+            <tr>
+              <td>{{ item.memberName }}</td>
+              <td>{{ item.totalBorrows }}</td>
+              <td>{{ item.activeBorrows }}</td>
+              <td>{{ item.overdueBorrows }}</td>
+              <td>{{ item.totalFines > 0 ? '$' + item.totalFines : '—' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

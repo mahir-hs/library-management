@@ -1,0 +1,34 @@
+import { Component } from '@angular/core';
+import { RouterOutlet, RouterLinkActive } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+
+@Component({
+  selector: 'app-layout',
+  standalone: true,
+  imports: [RouterOutlet, CommonModule],
+  templateUrl: './app-layout.component.html',
+  styleUrl: './app-layout.component.scss'
+})
+export class AppLayoutComponent {
+  sidebarOpen = true;
+
+  constructor(
+    public authService: AuthService,
+    private router: Router
+  ) {}
+
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
+  }
+
+  isActive(route: string): boolean {
+    return this.router.url === route;
+  }
+}

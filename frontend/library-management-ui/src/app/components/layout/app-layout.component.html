@@ -1,0 +1,63 @@
+<div class="layout" [class.sidebar-collapsed]="!sidebarOpen">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h2 *ngIf="sidebarOpen">Library Mgmt</h2>
+      <button class="toggle-btn" (click)="toggleSidebar()">
+        {{ sidebarOpen ? "◀" : "▶" }}
+      </button>
+    </div>
+    <nav class="sidebar-nav">
+      <a routerLink="/" routerLinkActive="active">
+        <span class="icon">📊</span>
+        <span *ngIf="sidebarOpen">Dashboard</span>
+      </a>
+      <a routerLink="/branches" routerLinkActive="active">
+        <span class="icon">🏢</span>
+        <span *ngIf="sidebarOpen">Branches</span>
+      </a>
+      <a routerLink="/books" routerLinkActive="active">
+        <span class="icon">📚</span>
+        <span *ngIf="sidebarOpen">Books</span>
+      </a>
+      <a routerLink="/members" routerLinkActive="active">
+        <span class="icon">👥</span>
+        <span *ngIf="sidebarOpen">Members</span>
+      </a>
+      <a routerLink="/borrows" routerLinkActive="active">
+        <span class="icon">📋</span>
+        <span *ngIf="sidebarOpen">Borrows</span>
+      </a>
+      <a routerLink="/reservations" routerLinkActive="active">
+        <span class="icon">⏳</span>
+        <span *ngIf="sidebarOpen">Reservations</span>
+      </a>
+      <a routerLink="/reports" routerLinkActive="active">
+        <span class="icon">📈</span>
+        <span *ngIf="sidebarOpen">Reports</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" (click)="logout()">
+        <span class="icon">🚪</span>
+        <span *ngIf="sidebarOpen">Logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="top-bar">
+      <button class="hamburger" (click)="toggleSidebar()">☰</button>
+      <h1>Library Management System</h1>
+      <div class="user-info">
+        {{
+          authService.getCurrentUser()?.fullName ||
+            authService.getCurrentUser()?.email
+        }}
+        <span class="role-badge">{{ authService.getRole() }}</span>
+      </div>
+    </header>
+    <main class="content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

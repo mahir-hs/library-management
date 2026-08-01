@@ -1,0 +1,130 @@
+<div class="page">
+  <div class="page-header">
+    <h2>Branches</h2>
+    <button class="btn btn-primary" routerLink="/branches/new">
+      + New Branch
+    </button>
+  </div>
+
+  <app-toast [toasts]="toastMessages" (dismiss)="onDismissToast($event)"></app-toast>
+
+  <div class="error-message" *ngIf="errorMessage">
+    {{ errorMessage }}
+    <button (click)="loadBranches()">Retry</button>
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    <app-spinner [loading]="true"></app-spinner>
+    <p>Loading branches...</p>
+  </div>
+
+  <div class="search-bar" *ngIf="!loading">
+    <input
+      type="text"
+      placeholder="Search by name..."
+      [(ngModel)]="searchName"
+      (keyup.enter)="onSearch()"
+    />
+    <input
+      type="text"
+      placeholder="Search by code..."
+      [(ngModel)]="searchCode"
+      (keyup.enter)="onSearch()"
+    />
+    <select [(ngModel)]="searchIsActive">
+      <option [value]="undefined">All Status</option>
+      <option [value]="true">Active</option>
+      <option [value]="false">Inactive</option>
+    </select>
+    <button class="btn btn-search" (click)="onSearch()">Search</button>
+    <button class="btn btn-clear" (click)="onClearSearch()">Clear</button>
+  </div>
+
+  <div class="table-container" *ngIf="!loading && pagination">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Code</th>
+          <th>Address</th>
+          <th>Phone</th>
+          <th>Email</th>
+          <th>Books</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (branch of branches; track branch.id) {
+          <tr>
+            <td>
+              <a [routerLink]="['/branches', branch.id]">{{ branch.name }}</a>
+            </td>
+            <td>{{ branch.code }}</td>
+            <td>{{ branch.address }}</td>
+            <td>{{ branch.phone || '—' }}</td>
+            <td>{{ branch.email || '—' }}</td>
+            <td>{{ branch.bookCopyCount }}</td>
+            <td>
+              <span class="badge" [class]="getStatusBadge(branch.isActive)">
+                {{ getStatusText(branch.isActive) }}
+              </span>
+            </td>
+            <td class="actions">
+              <button
+                class="btn btn-sm btn-toggle"
+                (click)="onToggleActive(branch)"
+                [title]="branch.isActive ? 'Deactivate' : 'Activate'"
+              >
+                {{ branch.isActive ? 'Deactivate' : 'Activate' }}
+              </button>
+              <button
+                class="btn btn-sm btn-danger"
+                (click)="onDelete(branch)"
+                [title]="'Delete'"
+              >
+                Delete
+              </button>
+            </td>
+          </tr>
+        }
+        @if (branches.length === 0) {
+          <tr>
+            <td colspan="8" class="empty-state">No branches found</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination" *ngIf="pagination && !loading">
+    <div class="pagination-info">
+      Showing {{ branches.length }} of {{ pagination.totalCount }} branches
+    </div>
+    <div class="pagination-controls">
+      <select [(ngModel)]="pageSize" (change)="onPageSizeChange(pageSize)">
+        <option [value]="5">5 / page</option>
+        <option [value]="10">10 / page</option>
+        <option [value]="20">20 / page</option>
+        <option [value]="50">50 / page</option>
+      </select>
+      <button
+        class="btn btn-sm"
+        [disabled]="currentPage <= 1"
+        (click)="onPageChange(currentPage - 1)"
+      >
+        ← Prev
+      </button>
+      <span class="page-indicator">
+        Page {{ currentPage }} of {{ totalPages }}
+      </span>
+      <button
+        class="btn btn-sm"
+        [disabled]="currentPage >= totalPages"
+        (click)="onPageChange(currentPage + 1)"
+      >
+        Next →
+      </button>
+    </div>
+  </div>
+</div>

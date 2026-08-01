@@ -1,0 +1,98 @@
+<div class="page">
+  <div class="page-header">
+    <h2>{{ isEdit ? 'Edit Branch' : 'New Branch' }}</h2>
+  </div>
+
+  <app-toast [toasts]="toastMessages" (dismiss)="onDismissToast($event)"></app-toast>
+
+  <div class="error-message" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    <app-spinner [loading]="true"></app-spinner>
+    <p>Loading branch...</p>
+  </div>
+
+  <form *ngIf="!loading && !submitting" (ngSubmit)="onSubmit()" #branchForm="ngForm" class="form">
+    <div class="form-group">
+      <label for="name">Name *</label>
+      <input
+        type="text"
+        id="name"
+        [(ngModel)]="form.name"
+        name="name"
+        required
+        placeholder="Enter branch name"
+        #nameInput="ngModel"
+      />
+      <span class="field-error" *ngIf="errors['name']">{{ errors['name'] }}</span>
+      <span class="field-error" *ngIf="nameInput.invalid && nameInput.touched && !errors['name']">
+        Branch name is required
+      </span>
+    </div>
+
+    <div class="form-group">
+      <label for="code">Code *</label>
+      <input
+        type="text"
+        id="code"
+        [(ngModel)]="form.code"
+        name="code"
+        required
+        placeholder="Enter branch code"
+        #codeInput="ngModel"
+      />
+      <span class="field-error" *ngIf="errors['code']">{{ errors['code'] }}</span>
+      <span class="field-error" *ngIf="codeInput.invalid && codeInput.touched && !errors['code']">
+        Branch code is required
+      </span>
+    </div>
+
+    <div class="form-group">
+      <label for="address">Address *</label>
+      <textarea
+        id="address"
+        [(ngModel)]="form.address"
+        name="address"
+        required
+        placeholder="Enter branch address"
+        rows="3"
+        #addressInput="ngModel"
+      ></textarea>
+      <span class="field-error" *ngIf="errors['address']">{{ errors['address'] }}</span>
+      <span class="field-error" *ngIf="addressInput.invalid && addressInput.touched && !errors['address']">
+        Address is required
+      </span>
+    </div>
+
+    <div class="form-group">
+      <label for="phone">Phone</label>
+      <input
+        type="text"
+        id="phone"
+        [(ngModel)]="form.phone"
+        name="phone"
+        placeholder="Enter phone number"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input
+        type="email"
+        id="email"
+        [(ngModel)]="form.email"
+        name="email"
+        placeholder="Enter email address"
+      />
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary" [disabled]="submitting">
+        {{ submitting ? 'Saving...' : (isEdit ? 'Update Branch' : 'Create Branch') }}
+      </button>
+      <button type="button" class="btn btn-cancel" (click)="onCancel()">Cancel</button>
+    </div>
+  </form>
+</div>

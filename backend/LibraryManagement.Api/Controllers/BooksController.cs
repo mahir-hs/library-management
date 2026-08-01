@@ -50,6 +50,25 @@ public class BooksController : BaseController
     }
 
     /// <summary>
+    /// Add copies of a book to a specific branch
+    /// </summary>
+    /// <remarks>Requires Admin or Librarian role</remarks>
+    [HttpPost("{id:guid}/copies")]
+    [Authorize(Roles = "Admin,Librarian")]
+    [ProducesResponseType(typeof(BookDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> AddBookCopies(
+        Guid id,
+        [FromBody] AddBookCopiesRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new AddBookCopiesCommand(id, request.Quantity, request.BranchId, request.ShelfLocation);
+        var result = await _mediator.Send(command, cancellationToken);
+        return CreatedAtAction(nameof(GetBookById), new { id = result.Id }, result);
+    }
+
+    /// <summary>
     /// Get a book by ID
     /// </summary>
     [HttpGet("{id:guid}")]

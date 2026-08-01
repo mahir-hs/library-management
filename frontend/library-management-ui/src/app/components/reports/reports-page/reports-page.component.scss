@@ -1,0 +1,30 @@
+.page { padding: 1.5rem; max-width: 1000px; }
+.page h2 { margin: 0 0 1.5rem 0; color: #333; }
+.error-message { background: #f8d7da; color: #721c24; padding: 0.75rem 1rem; border-radius: 4px; margin-bottom: 1rem; display: flex; justify-content: space-between; }
+.loading { text-align: center; padding: 3rem 1rem; color: #888; p { margin-top: 1rem; } }
+.tabs { display: flex; gap: 0; margin-bottom: 1.5rem; border-bottom: 2px solid #e0e0e0; }
+.tab { padding: 0.75rem 1.5rem; border: none; background: none; cursor: pointer; font-size: 0.875rem; font-weight: 500; color: #888; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s;
+  &.active { color: #667eea; border-bottom-color: #667eea; font-weight: 600; }
+  &:hover { color: #5568d3; } }
+.search-bar { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: center;
+  input[type="date"], input[type="text"] { padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-size: 0.875rem; }
+  input[type="date"] { width: 150px; }
+  input[type="text"] { width: 200px; } }
+.btn { padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; font-size: 0.875rem; font-weight: 500;
+  &.btn-search { background: #667eea; color: white; &:hover { background: #5568d3; } } }
+.table-container { overflow-x: auto; }
+.data-table { width: 100%; border-collapse: collapse; background: white; border-radius: 6px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid #eee; }
+  th { background: #f8f9fa; font-weight: 600; color: #555; font-size: 0.8rem; text-transform: uppercase; }
+  td { font-size: 0.875rem; color: #333; } tr:hover { background: #f8f9fa; }
+  .overdue-row { background: #fff3cd; }
+  .empty-state { text-align: center; padding: 2rem; color: #888; font-style: italic; } }
+.badge { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600;
+  &.badge-active { background: #d4edda; color: #155724; }
+  &.badge-returned { background: #e2e3e5; color: #383d41; }
+  &.badge-overdue { background: #f8d7da; color: #721c24; } }
+.summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+.card { background: white; border-radius: 8px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  .card-content { h3 { margin: 0; font-size: 1.75rem; color: #333; } p { margin: 0.25rem 0 0 0; color: #888; font-size: 0.875rem; } } }
+.tab-content { animation: fadeIn 0.2s ease-in; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }

@@ -1,0 +1,26 @@
+<div class="page">
+  <div class="page-header">
+    <button class="btn btn-back" (click)="onBack()">← Back to Borrows</button>
+    <h2>Borrow Details</h2>
+    <button class="btn btn-return" *ngIf="borrow && borrow.status === 'Active'" (click)="onReturn()">Return Book</button>
+  </div>
+  <app-toast [toasts]="toastMessages" (dismiss)="onDismissToast($event)"></app-toast>
+  <div class="error-message" *ngIf="errorMessage">{{ errorMessage }}</div>
+  <div class="loading" *ngIf="loading"><app-spinner [loading]="true"></app-spinner><p>Loading...</p></div>
+
+  <div class="detail-card" *ngIf="borrow && !loading">
+    <div class="detail-header">
+      <h3>{{ borrow.bookTitle }}</h3>
+      <span class="badge" [class]="getStatusBadge(borrow.status)">{{ borrow.status }}</span>
+    </div>
+    <div class="detail-grid">
+      <div class="detail-item"><span class="detail-label">Member</span><span class="detail-value">{{ borrow.memberName }}</span></div>
+      <div class="detail-item"><span class="detail-label">Borrowed</span><span class="detail-value">{{ formatDate(borrow.borrowedDate) }}</span></div>
+      <div class="detail-item"><span class="detail-label">Due Date</span><span class="detail-value">{{ formatDate(borrow.dueDate) }}</span></div>
+      <div class="detail-item"><span class="detail-label">Returned</span><span class="detail-value">{{ borrow.returnedDate ? formatDate(borrow.returnedDate) : 'Not yet' }}</span></div>
+      <div class="detail-item"><span class="detail-label">Fine</span><span class="detail-value">{{ borrow.fineAmount > 0 ? '$' + borrow.fineAmount : 'None' }}</span></div>
+      <div class="detail-item"><span class="detail-label">Book Copy ID</span><span class="detail-value">{{ borrow.bookCopyId }}</span></div>
+      <div class="detail-item"><span class="detail-label">ID</span><span class="detail-value detail-id">{{ borrow.id }}</span></div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,148 @@
+<div class="page">
+  <div class="page-header">
+    <h2>{{ isEdit ? 'Edit Book' : 'New Book' }}</h2>
+  </div>
+
+  <app-toast [toasts]="toastMessages" (dismiss)="onDismissToast($event)"></app-toast>
+
+  <div class="error-message" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    <app-spinner [loading]="true"></app-spinner>
+    <p>Loading book...</p>
+  </div>
+
+  <form *ngIf="!loading && !submitting" (ngSubmit)="onSubmit()" #bookForm="ngForm" class="form">
+    <div class="form-group">
+      <label for="title">Title *</label>
+      <input
+        type="text"
+        id="title"
+        [(ngModel)]="form.title"
+        name="title"
+        required
+        placeholder="Enter book title"
+        #titleInput="ngModel"
+      />
+      <span class="field-error" *ngIf="errors['title']">{{ errors['title'] }}</span>
+      <span class="field-error" *ngIf="titleInput.invalid && titleInput.touched && !errors['title']">
+        Title is required
+      </span>
+    </div>
+
+    <div class="form-group">
+      <label for="isbn">ISBN *</label>
+      <input
+        type="text"
+        id="isbn"
+        [(ngModel)]="form.isbn"
+        name="isbn"
+        required
+        placeholder="Enter ISBN"
+        #isbnInput="ngModel"
+      />
+      <span class="field-error" *ngIf="errors['isbn']">{{ errors['isbn'] }}</span>
+      <span class="field-error" *ngIf="isbnInput.invalid && isbnInput.touched && !errors['isbn']">
+        ISBN is required
+      </span>
+    </div>
+
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea
+        id="description"
+        [(ngModel)]="form.description"
+        name="description"
+        placeholder="Enter book description"
+        rows="3"
+      ></textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="publisher">Publisher</label>
+        <input
+          type="text"
+          id="publisher"
+          [(ngModel)]="form.publisher"
+          name="publisher"
+          placeholder="Enter publisher"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="publishedYear">Published Year</label>
+        <input
+          type="number"
+          id="publishedYear"
+          [(ngModel)]="form.publishedYear"
+          name="publishedYear"
+          placeholder="e.g. 2024"
+          min="1000"
+          max="2099"
+        />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="language">Language</label>
+        <input
+          type="text"
+          id="language"
+          [(ngModel)]="form.language"
+          name="language"
+          placeholder="e.g. English"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="imageUrl">Image URL</label>
+        <input
+          type="url"
+          id="imageUrl"
+          [(ngModel)]="form.imageUrl"
+          name="imageUrl"
+          placeholder="https://..."
+        />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="authorId">Author ID *</label>
+      <input
+        type="text"
+        id="authorId"
+        [(ngModel)]="form.authorId"
+        name="authorId"
+        required
+        placeholder="Enter author GUID"
+        #authorInput="ngModel"
+      />
+      <span class="field-error" *ngIf="errors['authorId']">{{ errors['authorId'] }}</span>
+    </div>
+
+    <div class="form-group">
+      <label for="categoryId">Category ID *</label>
+      <input
+        type="text"
+        id="categoryId"
+        [(ngModel)]="form.categoryId"
+        name="categoryId"
+        required
+        placeholder="Enter category GUID"
+        #categoryInput="ngModel"
+      />
+      <span class="field-error" *ngIf="errors['categoryId']">{{ errors['categoryId'] }}</span>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary" [disabled]="submitting">
+        {{ submitting ? 'Saving...' : (isEdit ? 'Update Book' : 'Create Book') }}
+      </button>
+      <button type="button" class="btn btn-cancel" (click)="onCancel()">Cancel</button>
+    </div>
+  </form>
+</div>

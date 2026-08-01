@@ -1,0 +1,92 @@
+<div class="page">
+  <div class="page-header">
+    <h2>Members</h2>
+    <button class="btn btn-primary" routerLink="/members/new">
+      + New Member
+    </button>
+  </div>
+
+  <app-toast [toasts]="toastMessages" (dismiss)="onDismissToast($event)"></app-toast>
+
+  <div class="error-message" *ngIf="errorMessage">
+    {{ errorMessage }}
+    <button (click)="loadMembers()">Retry</button>
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    <app-spinner [loading]="true"></app-spinner>
+    <p>Loading members...</p>
+  </div>
+
+  <div class="search-bar" *ngIf="!loading">
+    <input
+      type="text"
+      placeholder="Search by name or email..."
+      [(ngModel)]="searchQuery"
+      (keyup.enter)="onSearch()"
+      class="search-input"
+    />
+    <button class="btn btn-search" (click)="onSearch()">Search</button>
+    <button class="btn btn-clear" (click)="onClearSearch()">Clear</button>
+  </div>
+
+  <div class="table-container" *ngIf="!loading && pagination">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Membership #</th>
+          <th>Active Borrows</th>
+          <th>Joined</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (member of members; track member.id) {
+          <tr>
+            <td>
+              <a [routerLink]="['/members', member.id]">{{ member.fullName }}</a>
+            </td>
+            <td>{{ member.email }}</td>
+            <td>{{ member.phoneNumber || '—' }}</td>
+            <td>{{ member.membershipNumber }}</td>
+            <td>{{ member.activeBorrows }}</td>
+            <td>{{ member.joinedDate | date:'mediumDate' }}</td>
+            <td class="actions">
+              <button
+                class="btn btn-sm btn-danger"
+                (click)="onDelete(member)"
+                title="Delete"
+              >
+                Delete
+              </button>
+            </td>
+          </tr>
+        }
+        @if (members.length === 0) {
+          <tr>
+            <td colspan="7" class="empty-state">No members found</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination" *ngIf="pagination && !loading">
+    <div class="pagination-info">
+      Showing {{ members.length }} of {{ pagination.totalCount }} members
+    </div>
+    <div class="pagination-controls">
+      <select [(ngModel)]="pageSize" (change)="onPageSizeChange(pageSize)">
+        <option [value]="5">5 / page</option>
+        <option [value]="10">10 / page</option>
+        <option [value]="20">20 / page</option>
+      </select>
+      <button class="btn btn-sm" [disabled]="currentPage <= 1" (click)="onPageChange(currentPage - 1)">← Prev</button>
+      <span class="page-indicator">Page {{ currentPage }} of {{ totalPages }}</span>
+      <button class="btn btn-sm" [disabled]="currentPage >= totalPages" (click)="onPageChange(currentPage + 1)">Next →</button>
+    </div>
+  </div>
+</div>

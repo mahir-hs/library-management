@@ -1,0 +1,62 @@
+<div class="page">
+  <div class="page-header">
+    <button class="btn btn-back" (click)="onBack()">← Back to Branches</button>
+    <h2>Branch Details</h2>
+    <button class="btn btn-primary" *ngIf="branch" (click)="onEdit()">Edit Branch</button>
+  </div>
+
+  <app-toast [toasts]="toastMessages" (dismiss)="onDismissToast($event)"></app-toast>
+
+  <div class="error-message" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    <app-spinner [loading]="true"></app-spinner>
+    <p>Loading branch details...</p>
+  </div>
+
+  <div class="detail-card" *ngIf="branch && !loading">
+    <div class="detail-header">
+      <h3>{{ branch.name }}</h3>
+      <span class="badge" [class]="getStatusBadge(branch.isActive)">
+        {{ getStatusText(branch.isActive) }}
+      </span>
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail-item">
+        <span class="detail-label">Code</span>
+        <span class="detail-value">{{ branch.code }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Address</span>
+        <span class="detail-value">{{ branch.address }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Phone</span>
+        <span class="detail-value">{{ branch.phone || '—' }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Email</span>
+        <span class="detail-value">{{ branch.email || '—' }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Book Copies</span>
+        <span class="detail-value">{{ branch.bookCopyCount }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Staff Count</span>
+        <span class="detail-value">{{ branch.staffCount }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Created</span>
+        <span class="detail-value">{{ formatDate(branch.createdAt) }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">ID</span>
+        <span class="detail-value detail-id">{{ branch.id }}</span>
+      </div>
+    </div>
+  </div>
+</div>
