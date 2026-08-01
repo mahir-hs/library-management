@@ -46,6 +46,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, UserDto>
             request.Password,
             request.FullName,
             request.PhoneNumber,
+            request.BranchId,
             cancellationToken
         );
 

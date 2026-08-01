@@ -69,6 +69,7 @@ public class AuthService : IAuthService
         string password,
         string fullName,
         string phoneNumber,
+        Guid branchId,
         CancellationToken cancellationToken = default)
     {
         var user = new User
@@ -76,8 +77,9 @@ public class AuthService : IAuthService
             Username = username,
             Email = email,
             FullName = fullName,
-            Role = UserRole.Member,
+            Role = UserRole.Librarian,
             PhoneNumber = phoneNumber,
+            BranchId = branchId,
             IsActive = true,
             CreatedAt = DateTimeOffset.UtcNow
         };

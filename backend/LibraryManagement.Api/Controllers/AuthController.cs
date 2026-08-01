@@ -53,7 +53,7 @@ public class AuthController : ControllerBase
         [FromBody] RegisterRequest request,
         CancellationToken cancellationToken)
     {
-        var command = new RegisterCommand(request.Username, request.Email, request.Password, request.FullName, request.PhoneNumber);
+        var command = new RegisterCommand(request.Username, request.Email, request.Password, request.FullName, request.PhoneNumber, request.BranchId);
         var result = await _mediator.Send(command, cancellationToken);
         return CreatedAtAction(nameof(Register), new { id = result.Id }, result);
     }
