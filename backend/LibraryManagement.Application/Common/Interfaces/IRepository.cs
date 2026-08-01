@@ -1,117 +1,69 @@
-﻿using LibraryManagement.Domain.Common;
+﻿namespace LibraryManagement.Application.Common.Interfaces;
 
-namespace LibraryManagement.Infrastructure.Persistence.Repositories;
+using Common.Specifications;
 
 /// <summary>
-/// Repository interface - contract for all repository implementations
-/// Provides CRUD operations and filtering capabilities
+/// Generic repository interface for data access
 /// </summary>
-/// <typeparam name="T">Entity type</typeparam>
 public interface IRepository<T> where T : class
 {
-    #region Read Operations
+    /// <summary>
+    /// Gets an entity by its ID
+    /// </summary>
+    Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Get a single entity by its ID
+    /// Gets all entities
     /// </summary>
-    Task<T?> GetByIdAsync(Guid id);
+    Task<IReadOnlyList<T>> GetAllAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Get a single entity by ID with related entities eager-loaded
+    /// Gets entities using a specification
     /// </summary>
-    Task<T?> GetByIdAsync(Guid id, params System.Linq.Expressions.Expression<Func<T, object>>[] includes);
+    Task<IReadOnlyList<T>> GetAsync(SpecificationBase<T> specification, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Get all entities
+    /// Gets first entity matching specification or null
     /// </summary>
-    Task<IReadOnlyList<T>> GetAllAsync();
+    Task<T?> GetFirstAsync(SpecificationBase<T> specification, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Get all entities with eager loading of related entities
+    /// Gets count of entities matching specification
     /// </summary>
-    Task<IReadOnlyList<T>> GetAllAsync(params System.Linq.Expressions.Expression<Func<T, object>>[] includes);
+    Task<int> CountAsync(SpecificationBase<T> specification, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Get entities matching a predicate
+    /// Checks if any entity matches specification
     /// </summary>
-    Task<IReadOnlyList<T>> GetByPredicateAsync(System.Linq.Expressions.Expression<Func<T, bool>> predicate);
+    Task<bool> AnyAsync(SpecificationBase<T> specification, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Get entities matching a predicate with eager loading
+    /// Adds a new entity
     /// </summary>
-    Task<IReadOnlyList<T>> GetByPredicateAsync(
-        System.Linq.Expressions.Expression<Func<T, bool>> predicate,
-        params System.Linq.Expressions.Expression<Func<T, object>>[] includes);
+    Task AddAsync(T entity, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Get first entity matching a predicate, or null
+    /// Adds multiple entities
     /// </summary>
-    Task<T?> FirstOrDefaultAsync(System.Linq.Expressions.Expression<Func<T, bool>> predicate);
+    Task AddRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Check if any entity matches a predicate
+    /// Updates an existing entity
     /// </summary>
-    Task<bool> AnyAsync(System.Linq.Expressions.Expression<Func<T, bool>> predicate);
+    Task UpdateAsync(T entity, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Count entities matching a predicate
+    /// Deletes an entity
     /// </summary>
-    Task<int> CountAsync(System.Linq.Expressions.Expression<Func<T, bool>>? predicate = null);
-
-    #endregion
-
-    #region Write Operations
+    Task DeleteAsync(T entity, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Add a single entity (changes not persisted until SaveChangesAsync is called)
+    /// Deletes multiple entities
     /// </summary>
-    Task AddAsync(T entity);
+    Task DeleteRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Add multiple entities
+    /// Checks if an entity with given ID exists
     /// </summary>
-    Task AddRangeAsync(IEnumerable<T> entities);
-
-    /// <summary>
-    /// Update an entity
-    /// </summary>
-    void Update(T entity);
-
-    /// <summary>
-    /// Update multiple entities
-    /// </summary>
-    void UpdateRange(IEnumerable<T> entities);
-
-    /// <summary>
-    /// Delete an entity (soft delete for AuditableEntity)
-    /// </summary>
-    void Delete(T entity);
-
-    /// <summary>
-    /// Delete multiple entities
-    /// </summary>
-    void DeleteRange(IEnumerable<T> entities);
-
-    #endregion
-
-    #region Pagination
-
-    /// <summary>
-    /// Get paginated results
-    /// </summary>
-    Task<PaginatedResult<T>> GetPaginatedAsync(
-        int pageNumber = 1,
-        int pageSize = 10,
-        System.Linq.Expressions.Expression<Func<T, bool>>? predicate = null);
-
-    #endregion
-
-    #region Save
-
-    /// <summary>
-    /// Persist all changes to the database
-    /// </summary>
-    Task<int> SaveChangesAsync();
-
-    #endregion
+    Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default);
 }

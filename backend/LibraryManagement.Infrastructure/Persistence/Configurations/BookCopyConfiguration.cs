@@ -60,14 +60,23 @@ public class BookCopyConfiguration : IEntityTypeConfiguration<BookCopy>
             .IsUnique()
             .HasDatabaseName("idx_book_copies_barcode_unique");
 
+        builder.HasOne(bc => bc.Branch)
+            .WithMany(b => b.BookCopies)
+            .HasForeignKey(bc => bc.BranchId)
+            .OnDelete(DeleteBehavior.SetNull)
+            .HasConstraintName("fk_book_copies_branches");
+
         builder.HasMany(bc => bc.BorrowRecords)
             .WithOne(br => br.BookCopy)
             .HasForeignKey(br => br.BookCopyId)
-            .OnDelete(DeleteBehavior.Cascade)  
+            .OnDelete(DeleteBehavior.Cascade)
             .HasConstraintName("fk_borrow_records_book_copies");
 
         builder.HasIndex(bc => bc.BookId)
             .HasDatabaseName("idx_book_copies_book_id");
+
+        builder.HasIndex(bc => bc.BranchId)
+            .HasDatabaseName("idx_book_copies_branch_id");
 
         builder.HasIndex(bc => bc.Status)
             .HasDatabaseName("idx_book_copies_status");

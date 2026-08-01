@@ -1,11 +1,12 @@
 namespace LibraryManagement.Infrastructure.DependencyInjection;
 
 using LibraryManagement.Application.Common.Interfaces;
+using LibraryManagement.Domain.Entities;
 using LibraryManagement.Infrastructure.Persistence.Context;
 using LibraryManagement.Infrastructure.Persistence.Interceptors;
-using LibraryManagement.Infrastructure.Persistence.Repositories;
 using LibraryManagement.Infrastructure.Repositories;
 using LibraryManagement.Infrastructure.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +20,11 @@ public static class DependencyInjection
         services.AddScoped<AuditableEntityInterceptor>();
         services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+
+
         services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =>
         {
             var interceptor = serviceProvider.GetRequiredService<AuditableEntityInterceptor>();

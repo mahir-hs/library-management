@@ -21,6 +21,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Author> Authors => Set<Author>();
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<Branch> Branches => Set<Branch>();
     #endregion
 
     #region DbContext Overrides

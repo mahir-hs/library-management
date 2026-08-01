@@ -13,21 +13,49 @@ public class CurrentUserService : ICurrentUserService
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public Guid? UserId
+    public Guid UserId
     {
         get
         {
-            var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier)
-                            ?? _httpContextAccessor.HttpContext?.User?.FindFirstValue("sub");
-
-            return Guid.TryParse(userIdClaim, out var userId) ? userId : null;
+            // JWT Bearer maps "sub" to ClaimTypes.NameIdentifier by default;
+            // check the mapped type first, then fall back to the raw claim type.
+            var userIdClaim = _httpContextAccessor.HttpContext?.User
+                .FindFirstValue(ClaimTypes.NameIdentifier)
+              ?? _httpContextAccessor.HttpContext?.User.FindFirstValue("sub");
+            return Guid.TryParse(userIdClaim, out var userId) ? userId : Guid.Empty;
         }
     }
 
-    public string? UserEmail =>
-        _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.Email);
+    public string? Email
+    {
+        get
+        {
+            // JWT Bearer maps "email" to ClaimTypes.Email by default
+            return _httpContextAccessor.HttpContext?.User
+                .FindFirstValue(ClaimTypes.Email)
+              ?? _httpContextAccessor.HttpContext?.User.FindFirstValue("email");
+        }
+    }
 
-    public bool IsAuthenticated =>
-        _httpContextAccessor.HttpContext?.User?.Identity?.IsAuthenticated ?? false;
+    public string? Role
+    {
+        get
+        {
+            // JWT Bearer maps "role" to ClaimTypes.Role by default
+            return _httpContextAccessor.HttpContext?.User
+                .FindFirstValue(ClaimTypes.Role)
+              ?? _httpContextAccessor.HttpContext?.User.FindFirstValue("role");
+        }
+    }
+
+    public bool IsAuthenticated
+    {
+        get => _httpContextAccessor.HttpContext?.User.Identity?.IsAuthenticated ?? false;
+    }
+
+    public bool HasRole(string role)
+    {
+        var userRole = Role;
+        return userRole != null && userRole.Equals(role, StringComparison.OrdinalIgnoreCase);
+    }
 }
-

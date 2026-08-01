@@ -10,6 +10,8 @@ public sealed class BookCopy : AuditableEntity
     public BookCopyStatus Status { get; set; }
     public required string ShelfLocation { get; set; }
     public DateTimeOffset AcquiredDate { get; set; }
+    public Guid? BranchId { get; set; }
     public Book Book { get; set; } = null!;
+    public Branch? Branch { get; set; }
     public ICollection<BorrowRecord> BorrowRecords { get; set; } = [];
 }

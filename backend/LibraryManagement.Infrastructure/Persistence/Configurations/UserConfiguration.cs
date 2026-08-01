@@ -31,7 +31,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.PasswordHash)
             .IsRequired()
             .HasColumnName("password_hash")
-            .HasComment("BCrypt hashed password - never store plaintext");
+            .HasComment("ASP.NET Identity PasswordHasher hashed password - never store plaintext");
 
         builder.Property(u => u.FullName)
             .IsRequired()
@@ -95,6 +95,12 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasForeignKey(rt => rt.UserId)
             .OnDelete(DeleteBehavior.Cascade)
             .HasConstraintName("fk_refresh_tokens_users");
+
+        builder.HasOne(u => u.Branch)
+            .WithMany(b => b.Staff)
+            .HasForeignKey(u => u.BranchId)
+            .OnDelete(DeleteBehavior.SetNull)
+            .HasConstraintName("fk_users_branches");
 
         builder.HasIndex(u => u.IsActive)
             .HasDatabaseName("idx_users_is_active");

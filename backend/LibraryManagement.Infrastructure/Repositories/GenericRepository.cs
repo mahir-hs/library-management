@@ -1,10 +1,12 @@
-﻿using LibraryManagement.Domain.Common;
+﻿using LibraryManagement.Application.Common.Interfaces;
+using LibraryManagement.Application.Common.Specifications;
+using LibraryManagement.Domain.Common;
 using LibraryManagement.Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 
 namespace LibraryManagement.Infrastructure.Repositories;
 
-public class GenericRepository<T> where T : class
+public class GenericRepository<T> : IRepository<T> where T : class
 {
     protected readonly ApplicationDbContext _context;
     protected readonly DbSet<T> _dbSet;
@@ -22,9 +24,9 @@ public class GenericRepository<T> where T : class
     /// </summary>
     /// <param name="id">Entity ID</param>
     /// <returns>Entity if found, null otherwise</returns>
-    public virtual async Task<T?> GetByIdAsync(Guid id)
+    public virtual async Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await _dbSet.FindAsync([id], cancellationToken: CancellationToken.None);
+        return await _dbSet.FindAsync([id], cancellationToken: cancellationToken);
     }
 
     /// <summary>
@@ -33,7 +35,7 @@ public class GenericRepository<T> where T : class
     /// <param name="id">Entity ID</param>
     /// <param name="includes">Related entity properties to include (e.g., b => b.Author)</param>
     /// <returns>Entity with related entities loaded, null if not found</returns>
-    public virtual async Task<T?> GetByIdAsync(Guid id, params System.Linq.Expressions.Expression<Func<T, object>>[] includes)
+    public virtual async Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default, params System.Linq.Expressions.Expression<Func<T, object>>[] includes)
     {
         IQueryable<T> query = _dbSet;
 
@@ -42,16 +44,16 @@ public class GenericRepository<T> where T : class
             query = query.Include(include);
         }
 
-        return await query.FirstOrDefaultAsync(e => EF.Property<Guid>(e, "Id") == id);
+        return await query.FirstOrDefaultAsync(e => EF.Property<Guid>(e, "Id") == id, cancellationToken);
     }
 
     /// <summary>
     /// Get all entities
     /// </summary>
     /// <returns>List of all entities (subject to soft delete filters)</returns>
-    public virtual async Task<IReadOnlyList<T>> GetAllAsync()
+    public virtual async Task<IReadOnlyList<T>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await _dbSet.ToListAsync();
+        return await _dbSet.ToListAsync(cancellationToken);
     }
 
     /// <summary>
@@ -59,7 +61,7 @@ public class GenericRepository<T> where T : class
     /// </summary>
     /// <param name="includes">Related entity properties to include</param>
     /// <returns>List of all entities with relationships loaded</returns>
-    public virtual async Task<IReadOnlyList<T>> GetAllAsync(params System.Linq.Expressions.Expression<Func<T, object>>[] includes)
+    public virtual async Task<IReadOnlyList<T>> GetAllAsync(CancellationToken cancellationToken = default, params System.Linq.Expressions.Expression<Func<T, object>>[] includes)
     {
         IQueryable<T> query = _dbSet;
 
@@ -68,7 +70,7 @@ public class GenericRepository<T> where T : class
             query = query.Include(include);
         }
 
-        return await query.ToListAsync();
+        return await query.ToListAsync(cancellationToken);
     }
 
     /// <summary>
@@ -76,9 +78,9 @@ public class GenericRepository<T> where T : class
     /// </summary>
     /// <param name="predicate">Filter condition (e.g., b => b.Title.Contains("Harry"))</param>
     /// <returns>Matching entities</returns>
-    public virtual async Task<IReadOnlyList<T>> GetByPredicateAsync(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
+    public virtual async Task<IReadOnlyList<T>> GetByPredicateAsync(System.Linq.Expressions.Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
     {
-        return await _dbSet.Where(predicate).ToListAsync();
+        return await _dbSet.Where(predicate).ToListAsync(cancellationToken);
     }
 
     /// <summary>
@@ -89,6 +91,7 @@ public class GenericRepository<T> where T : class
     /// <returns>Matching entities with relationships loaded</returns>
     public virtual async Task<IReadOnlyList<T>> GetByPredicateAsync(
         System.Linq.Expressions.Expression<Func<T, bool>> predicate,
+        CancellationToken cancellationToken = default,
         params System.Linq.Expressions.Expression<Func<T, object>>[] includes)
     {
         IQueryable<T> query = _dbSet.Where(predicate);
@@ -98,7 +101,7 @@ public class GenericRepository<T> where T : class
             query = query.Include(include);
         }
 
-        return await query.ToListAsync();
+        return await query.ToListAsync(cancellationToken);
     }
 
     /// <summary>
@@ -106,9 +109,9 @@ public class GenericRepository<T> where T : class
     /// </summary>
     /// <param name="predicate">Filter condition</param>
     /// <returns>First matching entity or null</returns>
-    public virtual async Task<T?> FirstOrDefaultAsync(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
+    public virtual async Task<T?> FirstOrDefaultAsync(System.Linq.Expressions.Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
     {
-        return await _dbSet.FirstOrDefaultAsync(predicate);
+        return await _dbSet.FirstOrDefaultAsync(predicate, cancellationToken);
     }
 
     /// <summary>
@@ -116,9 +119,9 @@ public class GenericRepository<T> where T : class
     /// </summary>
     /// <param name="predicate">Filter condition</param>
     /// <returns>True if any entity matches</returns>
-    public virtual async Task<bool> AnyAsync(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
+    public virtual async Task<bool> AnyAsync(System.Linq.Expressions.Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
     {
-        return await _dbSet.AnyAsync(predicate);
+        return await _dbSet.AnyAsync(predicate, cancellationToken);
     }
 
     /// <summary>
@@ -126,11 +129,11 @@ public class GenericRepository<T> where T : class
     /// </summary>
     /// <param name="predicate">Filter condition (optional, null counts all)</param>
     /// <returns>Number of matching entities</returns>
-    public virtual async Task<int> CountAsync(System.Linq.Expressions.Expression<Func<T, bool>>? predicate = null)
+    public virtual async Task<int> CountAsync(System.Linq.Expressions.Expression<Func<T, bool>>? predicate = null, CancellationToken cancellationToken = default)
     {
         return predicate == null
-            ? await _dbSet.CountAsync()
-            : await _dbSet.CountAsync(predicate);
+            ? await _dbSet.CountAsync(cancellationToken)
+            : await _dbSet.CountAsync(predicate, cancellationToken);
     }
 
     #endregion
@@ -141,36 +144,38 @@ public class GenericRepository<T> where T : class
     /// Add a single entity to the database (does NOT save changes)
     /// </summary>
     /// <param name="entity">Entity to add</param>
-    public virtual async Task AddAsync(T entity)
+    public virtual async Task AddAsync(T entity, CancellationToken cancellationToken = default)
     {
-        await _dbSet.AddAsync(entity);
+        await _dbSet.AddAsync(entity, cancellationToken);
     }
 
     /// <summary>
     /// Add multiple entities to the database (does NOT save changes)
     /// </summary>
     /// <param name="entities">Entities to add</param>
-    public virtual async Task AddRangeAsync(IEnumerable<T> entities)
+    public virtual async Task AddRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default)
     {
-        await _dbSet.AddRangeAsync(entities);
+        await _dbSet.AddRangeAsync(entities, cancellationToken);
     }
 
     /// <summary>
     /// Update an entity in the database (does NOT save changes)
     /// </summary>
     /// <param name="entity">Entity to update (must be tracked or explicitly set)</param>
-    public virtual void Update(T entity)
+    public virtual Task UpdateAsync(T entity, CancellationToken cancellationToken = default)
     {
         _dbSet.Update(entity);
+        return Task.CompletedTask;
     }
 
     /// <summary>
     /// Update multiple entities (does NOT save changes)
     /// </summary>
     /// <param name="entities">Entities to update</param>
-    public virtual void UpdateRange(IEnumerable<T> entities)
+    public virtual Task UpdateRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default)
     {
         _dbSet.UpdateRange(entities);
+        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -178,18 +183,115 @@ public class GenericRepository<T> where T : class
     /// For AuditableEntity, this performs soft delete (sets DeletedAt)
     /// </summary>
     /// <param name="entity">Entity to delete</param>
-    public virtual void Delete(T entity)
+    public virtual Task DeleteAsync(T entity, CancellationToken cancellationToken = default)
     {
         _dbSet.Remove(entity);
+        return Task.CompletedTask;
     }
 
     /// <summary>
     /// Delete multiple entities (does NOT save changes)
     /// </summary>
     /// <param name="entities">Entities to delete</param>
-    public virtual void DeleteRange(IEnumerable<T> entities)
+    public virtual Task DeleteRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default)
     {
         _dbSet.RemoveRange(entities);
+        return Task.CompletedTask;
+    }
+
+    #endregion
+
+    #region Specification-based Operations
+
+    public virtual async Task<IReadOnlyList<T>> GetAsync(SpecificationBase<T> specification, CancellationToken cancellationToken = default)
+    {
+        IQueryable<T> query = _dbSet;
+
+        if (specification.Criteria != null)
+        {
+            query = query.Where(specification.Criteria);
+        }
+
+        foreach (var include in specification.Includes)
+        {
+            query = query.Include(include);
+        }
+
+        foreach (var includeString in specification.IncludeStrings)
+        {
+            query = query.Include(includeString);
+        }
+
+        if (specification.OrderBy != null)
+        {
+            query = query.OrderBy(specification.OrderBy);
+        }
+        else if (specification.OrderByDescending != null)
+        {
+            query = query.OrderByDescending(specification.OrderByDescending);
+        }
+
+        if (specification.IsPagingEnabled)
+        {
+            query = query.Skip(specification.Skip).Take(specification.Take);
+        }
+
+        return await query.ToListAsync(cancellationToken);
+    }
+
+    public virtual async Task<T?> GetFirstAsync(SpecificationBase<T> specification, CancellationToken cancellationToken = default)
+    {
+        IQueryable<T> query = _dbSet;
+
+        if (specification.Criteria != null)
+        {
+            query = query.Where(specification.Criteria);
+        }
+
+        foreach (var include in specification.Includes)
+        {
+            query = query.Include(include);
+        }
+
+        foreach (var includeString in specification.IncludeStrings)
+        {
+            query = query.Include(includeString);
+        }
+
+        return await query.FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public virtual async Task<int> CountAsync(SpecificationBase<T> specification, CancellationToken cancellationToken = default)
+    {
+        IQueryable<T> query = _dbSet;
+
+        if (specification.Criteria != null)
+        {
+            query = query.Where(specification.Criteria);
+        }
+
+        return await query.CountAsync(cancellationToken);
+    }
+
+    public virtual async Task<bool> AnyAsync(SpecificationBase<T> specification, CancellationToken cancellationToken = default)
+    {
+        IQueryable<T> query = _dbSet;
+
+        if (specification.Criteria != null)
+        {
+            query = query.Where(specification.Criteria);
+        }
+
+        return await query.AnyAsync(cancellationToken);
+    }
+
+    #endregion
+
+    #region Existence
+
+    public virtual async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await _dbSet.AnyAsync(e => EF.Property<Guid>(e, "Id") == id, cancellationToken);
     }
 
     #endregion

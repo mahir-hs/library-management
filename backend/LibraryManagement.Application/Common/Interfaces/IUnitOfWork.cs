@@ -1,5 +1,4 @@
 ﻿using LibraryManagement.Domain.Entities;
-using LibraryManagement.Infrastructure.Persistence.Repositories;
 
 namespace LibraryManagement.Application.Common.Interfaces;
 
@@ -53,6 +52,11 @@ public interface IUnitOfWork : IAsyncDisposable
     /// Repository for RefreshToken entities
     /// </summary>
     IRepository<RefreshToken> RefreshTokens { get; }
+
+    /// <summary>
+    /// Repository for Branch entities
+    /// </summary>
+    IRepository<Branch> Branchs { get; }
 
     /// <summary>
     /// Save all pending changes to the database

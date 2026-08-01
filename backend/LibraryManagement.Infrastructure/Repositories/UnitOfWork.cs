@@ -1,7 +1,6 @@
 ﻿using LibraryManagement.Application.Common.Interfaces;
 using LibraryManagement.Domain.Entities;
 using LibraryManagement.Infrastructure.Persistence.Context;
-using LibraryManagement.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace LibraryManagement.Infrastructure.Repositories;
