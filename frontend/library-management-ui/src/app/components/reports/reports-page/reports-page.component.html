@@ -1,7 +1,10 @@
 <div class="page">
   <h2>Reports</h2>
 
-  <app-toast [toasts]="toastMessages" (dismiss)="onDismissToast($event)"></app-toast>
+  <app-toast
+    [toasts]="toastMessages"
+    (dismiss)="onDismissToast($event)"
+  ></app-toast>
 
   <div class="error-message" *ngIf="errorMessage">
     {{ errorMessage }}
@@ -13,17 +16,37 @@
   </div>
 
   <div class="tabs" *ngIf="!loading">
-    <button class="tab" [class.active]="activeTab === 'borrow-history'" (click)="activeTab = 'borrow-history'">Borrow History</button>
-    <button class="tab" [class.active]="activeTab === 'overdue'" (click)="activeTab = 'overdue'">Overdue Books</button>
-    <button class="tab" [class.active]="activeTab === 'member-activity'" (click)="activeTab = 'member-activity'">Member Activity</button>
+    <button
+      class="tab"
+      [class.active]="activeTab === 'borrow-history'"
+      (click)="activeTab = 'borrow-history'"
+    >
+      Borrow History
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab === 'overdue'"
+      (click)="activeTab = 'overdue'"
+    >
+      Overdue Books
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab === 'member-activity'"
+      (click)="activeTab = 'member-activity'"
+    >
+      Member Activity
+    </button>
   </div>
 
   <!-- Borrow History Tab -->
   <div class="tab-content" *ngIf="activeTab === 'borrow-history'">
     <div class="search-bar">
-      <input type="date" [(ngModel)]="startDate" placeholder="From date">
-      <input type="date" [(ngModel)]="endDate" placeholder="To date">
-      <button class="btn btn-search" (click)="onSearchBorrowHistory()">Search</button>
+      <input type="date" [(ngModel)]="startDate" placeholder="From date" />
+      <input type="date" [(ngModel)]="endDate" placeholder="To date" />
+      <button class="btn btn-search" (click)="onSearchBorrowHistory()">
+        Search
+      </button>
     </div>
 
     <div class="table-container">
@@ -43,18 +66,20 @@
             <tr>
               <td>{{ item.bookTitle }}</td>
               <td>{{ item.memberName }}</td>
-              <td>{{ item.borrowedDate | date:'mediumDate' }}</td>
-              <td>{{ item.dueDate | date:'mediumDate' }}</td>
-              <td>{{ item.returnedDate ? item.returnedDate | date:'mediumDate' : '—' }}</td>
+              <td>{{ item.borrowedAt | date: "mediumDate" }}</td>
+              <td>{{ item.dueDate | date: "mediumDate" }}</td>
+              <!-- FIXED: Wrapped piped expression in parentheses -->
               <td>
-                <span class="badge" [class]="item.status === 'Returned' ? 'badge-returned' : item.status === 'Overdue' ? 'badge-overdue' : 'badge-active'">
-                  {{ item.status }}
-                </span>
+                {{
+                  item.returnedAt ? (item.returnedAt | date: "mediumDate") : "—"
+                }}
               </td>
             </tr>
           }
           @if (borrowHistory.length === 0) {
-            <tr><td colspan="6" class="empty-state">No borrow history found</td></tr>
+            <tr>
+              <td colspan="6" class="empty-state">No borrow history found</td>
+            </tr>
           }
         </tbody>
       </table>
@@ -79,11 +104,13 @@
               <td>{{ item.bookTitle }}</td>
               <td>{{ item.memberName }}</td>
               <td>{{ item.daysOverdue }}</td>
-              <td>{{ item.fineAmount > 0 ? '$' + item.fineAmount : '—' }}</td>
+              <td>{{ item.fineAmount > 0 ? "$" + item.fineAmount : "—" }}</td>
             </tr>
           }
           @if (overdueBooks.length === 0) {
-            <tr><td colspan="4" class="empty-state">No overdue books</td></tr>
+            <tr>
+              <td colspan="4" class="empty-state">No overdue books</td>
+            </tr>
           }
         </tbody>
       </table>
@@ -93,20 +120,23 @@
   <!-- Member Activity Tab -->
   <div class="tab-content" *ngIf="activeTab === 'member-activity'">
     <div class="search-bar">
-      <input type="text" placeholder="Member ID" [(ngModel)]="memberSearchId">
-      <button class="btn btn-search" (click)="loadMemberActivity()">Search</button>
+      <input type="text" placeholder="Member ID" [(ngModel)]="memberSearchId" />
+      <button class="btn btn-search" (click)="loadMemberActivity()">
+        Search
+      </button>
     </div>
 
-    <div class="summary-cards" *ngIf="memberSummary">
+    <!-- FIXED: Updated summary cards binding to use 'summary' property from TS -->
+    <div class="summary-cards" *ngIf="summary">
       <div class="card">
         <div class="card-content">
-          <h3>{{ memberSummary.activeBorrows }}</h3>
+          <h3>{{ summary.activeBorrows }}</h3>
           <p>Active Borrows</p>
         </div>
       </div>
       <div class="card">
         <div class="card-content">
-          <h3>{{ memberSummary.overdueCount }}</h3>
+          <h3>{{ summary.overdueCount }}</h3>
           <p>Overdue</p>
         </div>
       </div>
@@ -130,7 +160,7 @@
               <td>{{ item.totalBorrows }}</td>
               <td>{{ item.activeBorrows }}</td>
               <td>{{ item.overdueBorrows }}</td>
-              <td>{{ item.totalFines > 0 ? '$' + item.totalFines : '—' }}</td>
+              <td>{{ item.totalFines > 0 ? "$" + item.totalFines : "—" }}</td>
             </tr>
           }
         </tbody>

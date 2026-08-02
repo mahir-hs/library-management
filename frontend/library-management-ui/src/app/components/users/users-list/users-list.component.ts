@@ -1,34 +1,34 @@
 import { Component, OnInit } from '@angular/core';
-import { MemberService } from '../../../services/member.service';
-import { MemberDto } from '../../../models/member.models';
+import { UserService } from '../../../services/user.service';
+import { UserDto } from '../../../models/auth.models';
 import { PaginatedResult } from '../../../models/result.models';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import {
   ToastComponent,
   ToastMessage,
 } from '../../../shared/components/toast/toast.component';
 import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
-import { FormsModule } from '@angular/forms';
+
 @Component({
-  selector: 'app-member-list',
+  selector: 'app-users-list',
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     RouterModule,
     ToastComponent,
     SpinnerComponent,
-    FormsModule,
   ],
-  templateUrl: './member-list.component.html',
-  styleUrl: './member-list.component.scss',
+  templateUrl: './users-list.component.html',
+  styleUrl: './users-list.component.scss',
 })
-export class MemberListComponent implements OnInit {
-  members: MemberDto[] = [];
-  pagination: PaginatedResult<MemberDto> | null = null;
+export class UsersListComponent implements OnInit {
+  users: UserDto[] = [];
+  pagination: PaginatedResult<UserDto> | null = null;
   loading = false;
   errorMessage = '';
-  searchQuery = '';
   currentPage = 1;
   pageSize = 10;
   totalPages = 0;
@@ -36,86 +36,77 @@ export class MemberListComponent implements OnInit {
   toastMessages: ToastMessage[] = [];
 
   constructor(
-    private memberService: MemberService,
+    private userService: UserService,
     private router: Router,
   ) {}
 
   ngOnInit(): void {
-    this.loadMembers();
+    this.loadUsers();
   }
 
-  loadMembers(): void {
+  loadUsers(): void {
     this.loading = true;
     this.errorMessage = '';
 
-    this.memberService.getAll(this.currentPage, this.pageSize).subscribe({
+    this.userService.getAll(this.currentPage, this.pageSize).subscribe({
       next: (response) => {
         this.loading = false;
         if (response.success && response.data) {
           this.pagination = response.data;
-          this.members = response.data.items;
+          this.users = response.data.items;
           this.totalPages = Math.ceil(response.data.totalCount / this.pageSize);
         } else {
-          this.members = [];
+          this.users = [];
           this.totalPages = 0;
           this.errorMessage =
-            response.errors?.join(' ') || 'Failed to load members';
+            response.errors?.join(' ') || 'Failed to load users';
         }
       },
       error: (err) => {
         this.loading = false;
-        this.errorMessage = err.message || 'Failed to load members';
+        this.errorMessage = err.message || 'Failed to load users';
         this.showToast('error', this.errorMessage);
       },
     });
   }
 
-  onSearch(): void {
-    this.currentPage = 1;
-    this.loadMembers();
-  }
-
-  onClearSearch(): void {
-    this.searchQuery = '';
-    this.currentPage = 1;
-    this.loadMembers();
-  }
-
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.loadMembers();
+    this.loadUsers();
   }
 
   onPageSizeChange(size: number): void {
     this.pageSize = size;
     this.currentPage = 1;
-    this.loadMembers();
+    this.loadUsers();
   }
 
-  onDelete(member: MemberDto): void {
+  onDelete(user: UserDto): void {
     if (
-      !confirm(`Are you sure you want to delete member "${member.fullName}"?`)
+      !confirm(
+        `Are you sure you want to delete user "${user.username}"? This action cannot be undone.`,
+      )
     ) {
       return;
     }
 
-    this.memberService.delete(member.id).subscribe({
+    this.userService.delete(user.id).subscribe({
       next: (response) => {
         if (response.success) {
           this.showToast(
             'success',
-            `Member "${member.fullName}" deleted successfully.`,
+            `User "${user.username}" deleted successfully.`,
           );
-          this.loadMembers();
+          this.loadUsers();
         } else {
           this.showToast(
             'error',
-            response.errors?.join(' ') || 'Failed to delete member',
+            response.errors?.join(' ') || 'Failed to delete user',
           );
         }
       },
       error: (err) => {
-        this.showToast('error', err.message || 'Failed to delete member');
+        this.showToast('error', err.message || 'Failed to delete user');
       },
     });
   }

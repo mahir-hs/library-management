@@ -34,7 +34,7 @@ export class BorrowDetailComponent implements OnInit {
         if (response.success && response.data) {
           this.borrow = response.data;
         } else {
-          this.errorMessage = response.errors?.join(' ') || 'Borrow not found';
+          this.errorMessage = response.errors?.join(' ') || 'Failed to load borrow';
         }
       },
       error: (err) => {
@@ -45,13 +45,13 @@ export class BorrowDetailComponent implements OnInit {
   }
   onReturn(): void {
     if (!this.borrow || !confirm(`Return "${this.borrow.bookTitle}"?`)) return;
-    this.borrowService.returnBorrow({ borrowId: this.borrow.id }).subscribe({
+    this.borrowService.returnBorrow(this.borrow.id).subscribe({
       next: (response) => {
         if (response.success) {
           this.showToast('success', 'Book returned successfully.');
           this.loadBorrow(this.borrow!.id);
         } else {
-          this.showToast('error', response.errors?.join(' ') || 'Failed to return');
+          this.showToast('error', response.errors?.join(' ') || 'Failed to return book');
         }
       },
       error: (err) => {
@@ -65,7 +65,7 @@ export class BorrowDetailComponent implements OnInit {
   }
   getStatusBadge(status: string): string {
     switch (status?.toLowerCase()) {
-      case 'active': return 'badge-active';
+      case 'borrowed': return 'badge-active';
       case 'returned': return 'badge-returned';
       case 'overdue': return 'badge-overdue';
       default: return 'badge-default';

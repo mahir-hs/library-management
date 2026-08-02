@@ -1,11 +1,8 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { Observable } from 'rxjs';
-import { MemberDto } from '../models/member.models';
-import {
-  CreateMemberRequest,
-  UpdateMemberRequest,
-} from '../models/member.models';
+import { MemberDto, MemberDetailDto } from '../models/member.models';
+import { CreateMemberRequest, UpdateMemberRequest } from '../models/member.models';
 import { PaginatedResult, Result } from '../models/result.models';
 
 @Injectable({
@@ -14,45 +11,33 @@ import { PaginatedResult, Result } from '../models/result.models';
 export class MemberService {
   constructor(private api: ApiService) {}
 
-  getAll(
-    pageNumber: number = 1,
-    pageSize: number = 10,
-  ): Observable<Result<PaginatedResult<MemberDto>>> {
-    return this.api.get<PaginatedResult<MemberDto>>(
-      `/members?pageNumber=${pageNumber}&pageSize=${pageSize}`,
+  getAll(pageNumber: number = 1, pageSize: number = 10): Observable<Result<PaginatedResult<MemberDto>>> {
+    return this.api.get<Result<PaginatedResult<MemberDto>>>(
+      `/members/all?pageNumber=${pageNumber}&pageSize=${pageSize}`,
     );
   }
 
-  search(
-    query: string,
-    pageNumber: number = 1,
-    pageSize: number = 10,
-  ): Observable<Result<PaginatedResult<MemberDto>>> {
-    const params = new URLSearchParams();
-    if (query) params.set('query', query);
-    params.set('pageNumber', String(pageNumber));
-    params.set('pageSize', String(pageSize));
-    return this.api.get<PaginatedResult<MemberDto>>(
-      `/members/search?${params.toString()}`,
-    );
+  getById(id: string): Observable<Result<MemberDetailDto>> {
+    return this.api.get<Result<MemberDetailDto>>(`/members/${id}`);
   }
 
-  getById(id: string): Observable<Result<MemberDto>> {
-    return this.api.get<MemberDto>(`/members/${id}`);
+  getByUserId(userId: string): Observable<Result<MemberDetailDto>> {
+    return this.api.get<Result<MemberDetailDto>>(`/members/user/${userId}`);
   }
 
-  create(request: CreateMemberRequest): Observable<Result<MemberDto>> {
-    return this.api.post<MemberDto>('/members', request);
+  getMyProfile(): Observable<Result<MemberDetailDto>> {
+    return this.api.get<Result<MemberDetailDto>>('/members/me');
   }
 
-  update(
-    id: string,
-    request: UpdateMemberRequest,
-  ): Observable<Result<MemberDto>> {
-    return this.api.put<MemberDto>(`/members/${id}`, request);
+  create(request: CreateMemberRequest): Observable<Result<MemberDetailDto>> {
+    return this.api.post<Result<MemberDetailDto>>('/members', request);
+  }
+
+  update(id: string, request: UpdateMemberRequest): Observable<Result<MemberDto>> {
+    return this.api.put<Result<MemberDto>>(`/members/${id}`, request);
   }
 
   delete(id: string): Observable<Result<void>> {
-    return this.api.delete<void>(`/members/${id}`);
+    return this.api.delete<Result<void>>(`/members/${id}`);
   }
 }

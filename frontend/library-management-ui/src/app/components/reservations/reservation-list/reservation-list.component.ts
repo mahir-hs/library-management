@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ReservationService } from '../../../services/reservation.service';
-import { ReservationDto } from '../../../models/reservation.models';
+import { MyReservationsResponse } from '../../../models/reservation.models';
 import { PaginatedResult } from '../../../models/result.models';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
@@ -15,13 +15,14 @@ import { SpinnerComponent } from '../../../shared/components/spinner/spinner.com
   styleUrl: './reservation-list.component.scss'
 })
 export class ReservationListComponent implements OnInit {
-  reservations: ReservationDto[] = [];
-  pagination: PaginatedResult<ReservationDto> | null = null;
+  reservations: MyReservationsResponse[] = [];
+  pagination: PaginatedResult<MyReservationsResponse> | null = null;
   loading = false;
   errorMessage = '';
   currentPage = 1;
   pageSize = 10;
   totalPages = 0;
+
   toastMessages: ToastMessage[] = [];
 
   constructor(private reservationService: ReservationService, private router: Router) {}
@@ -54,36 +55,36 @@ export class ReservationListComponent implements OnInit {
     });
   }
 
-  onFulfill(reservation: ReservationDto): void {
+  onFulfill(reservation: MyReservationsResponse): void {
     if (!confirm(`Fulfill reservation for "${reservation.bookTitle}"?`)) return;
     this.reservationService.fulfill(reservation.id).subscribe({
       next: (response) => {
-        if (response.success) {
-          this.showToast('success', `Reservation fulfilled for "${reservation.bookTitle}".`);
+        if (response.success && response.data) {
+          this.showToast('success', `Reservation fulfilled for "${response.data.bookTitle}".`);
           this.loadReservations();
         } else {
-          this.showToast('error', response.errors?.join(' ') || 'Failed to fulfill');
+          this.showToast('error', response.errors?.join(' ') || 'Failed to fulfill reservation');
         }
       },
       error: (err) => {
-        this.showToast('error', err.message || 'Failed to fulfill reservation');
+        this.showToast('error', err.message || 'Failed to fulfill');
       }
     });
   }
 
-  onCancel(reservation: ReservationDto): void {
+  onCancel(reservation: MyReservationsResponse): void {
     if (!confirm(`Cancel reservation for "${reservation.bookTitle}"?`)) return;
-    this.reservationService.cancel({ reservationId: reservation.id }).subscribe({
+    this.reservationService.cancel(reservation.id, 'Cancelled by user').subscribe({
       next: (response) => {
-        if (response.success) {
-          this.showToast('success', `Reservation cancelled for "${reservation.bookTitle}".`);
+        if (response.success && response.data) {
+          this.showToast('success', `Reservation cancelled for "${response.data.bookTitle}".`);
           this.loadReservations();
         } else {
-          this.showToast('error', response.errors?.join(' ') || 'Failed to cancel');
+          this.showToast('error', response.errors?.join(' ') || 'Failed to cancel reservation');
         }
       },
       error: (err) => {
-        this.showToast('error', err.message || 'Failed to cancel reservation');
+        this.showToast('error', err.message || 'Failed to cancel');
       }
     });
   }

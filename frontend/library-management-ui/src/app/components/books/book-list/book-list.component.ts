@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { BookService } from '../../../services/book.service';
-import { BookDto } from '../../../models/book.models';
+import { BookDto, BookSearchResponse } from '../../../models/book.models';
 import { PaginatedResult } from '../../../models/result.models';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
@@ -15,11 +15,13 @@ import { SpinnerComponent } from '../../../shared/components/spinner/spinner.com
   styleUrl: './book-list.component.scss'
 })
 export class BookListComponent implements OnInit {
-  books: BookDto[] = [];
-  pagination: PaginatedResult<BookDto> | null = null;
+  books: BookSearchResponse[] = [];
+  pagination: PaginatedResult<BookSearchResponse> | null = null;
   loading = false;
   errorMessage = '';
-  searchQuery = '';
+  searchTitle = '';
+  searchAuthor = '';
+  searchIsbn = '';
   currentPage = 1;
   pageSize = 10;
   totalPages = 0;
@@ -40,7 +42,10 @@ export class BookListComponent implements OnInit {
     this.errorMessage = '';
 
     this.bookService.search(
-      this.searchQuery || undefined,
+      this.searchTitle || undefined,
+      this.searchAuthor || undefined,
+      this.searchIsbn || undefined,
+      undefined,
       this.currentPage,
       this.pageSize
     ).subscribe({
@@ -57,6 +62,7 @@ export class BookListComponent implements OnInit {
         }
       },
       error: (err) => {
+      error: (err) => {
         this.loading = false;
         this.errorMessage = err.message || 'Failed to load books';
         this.showToast('error', this.errorMessage);
@@ -70,7 +76,9 @@ export class BookListComponent implements OnInit {
   }
 
   onClearSearch(): void {
-    this.searchQuery = '';
+    this.searchTitle = '';
+    this.searchAuthor = '';
+    this.searchIsbn = '';
     this.currentPage = 1;
     this.loadBooks();
   }
@@ -86,20 +94,15 @@ export class BookListComponent implements OnInit {
     this.loadBooks();
   }
 
-  onDelete(book: BookDto): void {
+  onDelete(book: BookSearchResponse): void {
     if (!confirm(`Are you sure you want to delete "${book.title}"? This action cannot be undone.`)) {
       return;
     }
 
     this.bookService.delete(book.id).subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.showToast('success', `Book "${book.title}" deleted successfully.`);
-          this.loadBooks();
-        } else {
-          this.errorMessage = response.errors?.join(' ') || 'Failed to delete book';
-          this.showToast('error', this.errorMessage);
-        }
+      next: () => {
+        this.showToast('success', `Book "${book.title}" deleted successfully.`);
+        this.loadBooks();
       },
       error: (err) => {
         this.errorMessage = err.message || 'Failed to delete book';

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MemberService } from '../../../services/member.service';
-import { MemberDto } from '../../../models/member.models';
+import { MemberDto, MemberDetailDto } from '../../../models/member.models';
+import { Result } from '../../../models/result.models';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
@@ -30,7 +31,7 @@ export class MemberDetailComponent implements OnInit {
   loadMember(id: string): void {
     this.loading = true;
     this.memberService.getById(id).subscribe({
-      next: (response) => {
+      next: (response: Result<MemberDetailDto>) => {
         this.loading = false;
         if (response.success && response.data) {
           this.member = response.data;
@@ -38,11 +39,15 @@ export class MemberDetailComponent implements OnInit {
           this.errorMessage = response.errors?.join(' ') || 'Member not found';
         }
       },
-      error: (err) => {
+      error: (err: any) => {
         this.loading = false;
         this.errorMessage = err.message || 'Failed to load member';
       }
     });
+  }
+
+  onDismissToast(id: string): void {
+    this.toastMessages = this.toastMessages.filter((t) => t.id !== id);
   }
 
   onEdit(): void {

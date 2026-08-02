@@ -3,7 +3,6 @@ import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-import { Result } from '../models/result.models';
 
 @Injectable({
   providedIn: 'root'
@@ -26,28 +25,28 @@ export class ApiService {
     return sessionStorage.getItem('authToken');
   }
 
-  get<T>(url: string): Observable<Result<T>> {
-    return this.http.get<Result<T>>(`${this.baseUrl}${url}`, { headers: this.getHeaders() })
+  get<T>(url: string): Observable<T> {
+    return this.http.get<T>(`${this.baseUrl}${url}`, { headers: this.getHeaders() })
       .pipe(catchError(this.handleError));
   }
 
-  post<T>(url: string, body: any): Observable<Result<T>> {
-    return this.http.post<Result<T>>(`${this.baseUrl}${url}`, body, { headers: this.getHeaders() })
+  post<T>(url: string, body: any): Observable<T> {
+    return this.http.post<T>(`${this.baseUrl}${url}`, body, { headers: this.getHeaders() })
       .pipe(catchError(this.handleError));
   }
 
-  put<T>(url: string, body: any): Observable<Result<T>> {
-    return this.http.put<Result<T>>(`${this.baseUrl}${url}`, body, { headers: this.getHeaders() })
+  put<T>(url: string, body: any): Observable<T> {
+    return this.http.put<T>(`${this.baseUrl}${url}`, body, { headers: this.getHeaders() })
       .pipe(catchError(this.handleError));
   }
 
-  patch<T>(url: string, body?: any): Observable<Result<T>> {
-    return this.http.patch<Result<T>>(`${this.baseUrl}${url}`, body, { headers: this.getHeaders() })
+  patch<T>(url: string, body?: any): Observable<T> {
+    return this.http.patch<T>(`${this.baseUrl}${url}`, body, { headers: this.getHeaders() })
       .pipe(catchError(this.handleError));
   }
 
-  delete<T>(url: string): Observable<Result<T>> {
-    return this.http.delete<Result<T>>(`${this.baseUrl}${url}`, { headers: this.getHeaders() })
+  delete<T>(url: string): Observable<T> {
+    return this.http.delete<T>(`${this.baseUrl}${url}`, { headers: this.getHeaders() })
       .pipe(catchError(this.handleError));
   }
 
@@ -56,9 +55,14 @@ export class ApiService {
     if (error.error instanceof ErrorEvent) {
       errorMessage = `Client error: ${error.error.message}`;
     } else {
-      errorMessage = `Server error: ${error.status} - ${error.message}`;
-      if (error.error && error.error.errors) {
-        errorMessage = error.error.errors.join('; ');
+      errorMessage = error.error?.message || error.error?.title || `Server error: ${error.status}`;
+      // Handle ASP.NET Core ProblemDetails format
+      if (error.error?.errors) {
+        const errors = error.error.errors;
+        const errorMessages = Object.values(errors).flat();
+        errorMessage = errorMessages.join('; ');
+      } else if (typeof error.error === 'string') {
+        errorMessage = error.error;
       }
     }
     return throwError(() => new Error(errorMessage));

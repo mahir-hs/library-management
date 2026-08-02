@@ -44,7 +44,7 @@ export class BookDetailComponent implements OnInit {
         if (response.success && response.data) {
           this.book = response.data;
         } else {
-          this.errorMessage = response.errors?.join(' ') || 'Book not found';
+          this.errorMessage = response.errors?.join(' ') || 'Failed to load book';
         }
       },
       error: (err) => {

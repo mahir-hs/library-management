@@ -2,7 +2,6 @@ export interface Result<T> {
   success: boolean;
   data: T | null;
   errors: string[] | null;
-  statusCode: number;
 }
 
 export interface PaginatedResult<T> {

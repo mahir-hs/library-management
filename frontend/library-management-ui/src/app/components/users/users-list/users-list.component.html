@@ -1,0 +1,79 @@
+<div class="page">
+  <div class="page-header">
+    <h2>Users</h2>
+  </div>
+
+  <app-toast [toasts]="toastMessages" (dismiss)="onDismissToast($event)"></app-toast>
+
+  <div class="error-message" *ngIf="errorMessage">
+    {{ errorMessage }}
+    <button (click)="loadUsers()">Retry</button>
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    <app-spinner [loading]="true"></app-spinner>
+    <p>Loading users...</p>
+  </div>
+
+  <div class="table-container" *ngIf="!loading && pagination">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Email</th>
+          <th>Full Name</th>
+          <th>Role</th>
+          <th>Active</th>
+          <th>Last Login</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (user of users; track user.id) {
+          <tr>
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.fullName }}</td>
+            <td>{{ user.role }}</td>
+            <td>
+              <span class="badge" [class.badge-active]="user.isActive" [class.badge-inactive]="!user.isActive">
+                {{ user.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+            <td>{{ user.lastLoginAt ? (user.lastLoginAt | date:'medium') : '—' }}</td>
+            <td class="actions">
+              <button
+                class="btn btn-sm btn-danger"
+                (click)="onDelete(user)"
+                title="Delete"
+              >
+                Delete
+              </button>
+            </td>
+          </tr>
+        }
+        @if (users.length === 0) {
+          <tr>
+            <td colspan="7" class="empty-state">No users found</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination" *ngIf="pagination && !loading">
+    <div class="pagination-info">
+      Showing {{ users.length }} of {{ pagination.totalCount }} users
+    </div>
+    <div class="pagination-controls">
+      <select [(ngModel)]="pageSize" (change)="onPageSizeChange(pageSize)">
+        <option [value]="5">5 / page</option>
+        <option [value]="10">10 / page</option>
+        <option [value]="20">20 / page</option>
+      </select>
+      <button class="btn btn-sm" [disabled]="currentPage <= 1" (click)="onPageChange(currentPage - 1)">← Prev</button>
+      <span class="page-indicator">Page {{ currentPage }} of {{ totalPages }}</span>
+      <button class="btn btn-sm" [disabled]="currentPage >= totalPages" (click)="onPageChange(currentPage + 1)">Next →</button>
+    </div>
+  </div>
+</div>

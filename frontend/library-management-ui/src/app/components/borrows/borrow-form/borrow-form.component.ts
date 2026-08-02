@@ -31,11 +31,14 @@ export class BorrowFormComponent implements OnInit {
     if (Object.keys(this.errors).length > 0) return;
 
     this.submitting = true;
-    this.borrowService.create({ bookCopyId: this.form.bookCopyId, memberId: this.form.memberId }).subscribe({
+    this.borrowService.create({
+      bookCopyId: this.form.bookCopyId,
+      memberId: this.form.memberId
+    }).subscribe({
       next: (response) => {
         this.submitting = false;
-        if (response.success) {
-          this.showToast('success', 'Borrow created successfully.');
+        if (response.success && response.data) {
+          this.showToast('success', `Book "${response.data.bookTitle}" borrowed successfully.`);
           this.router.navigate(['/borrows']);
         } else {
           this.errorMessage = response.errors?.join(' ') || 'Failed to create borrow';

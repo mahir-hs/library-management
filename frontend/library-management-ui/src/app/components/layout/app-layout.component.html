@@ -35,6 +35,10 @@
         <span class="icon">📈</span>
         <span *ngIf="sidebarOpen">Reports</span>
       </a>
+      <a routerLink="/users" routerLinkActive="active">
+        <span class="icon">👤</span>
+        <span *ngIf="sidebarOpen">Users</span>
+      </a>
     </nav>
     <div class="sidebar-footer">
       <button class="logout-btn" (click)="logout()">

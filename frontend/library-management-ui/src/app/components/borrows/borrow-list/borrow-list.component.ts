@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { BorrowService } from '../../../services/borrow.service';
-import { BorrowDto } from '../../../models/borrow.models';
+import { MyBorrowsResponse, BorrowListResponse } from '../../../models/borrow.models';
 import { PaginatedResult } from '../../../models/result.models';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
@@ -15,14 +15,16 @@ import { SpinnerComponent } from '../../../shared/components/spinner/spinner.com
   styleUrl: './borrow-list.component.scss'
 })
 export class BorrowListComponent implements OnInit {
-  borrows: BorrowDto[] = [];
-  pagination: PaginatedResult<BorrowDto> | null = null;
+  borrows: MyBorrowsResponse[] = [];
+  pagination: PaginatedResult<MyBorrowsResponse> | null = null;
   loading = false;
   errorMessage = '';
   currentPage = 1;
   pageSize = 10;
   totalPages = 0;
   showOverdueOnly = false;
+  overdueBorrows: BorrowListResponse[] = [];
+  overduePagination: PaginatedResult<BorrowListResponse> | null = null;
 
   toastMessages: ToastMessage[] = [];
 
@@ -45,7 +47,7 @@ export class BorrowListComponent implements OnInit {
         this.loading = false;
         if (response.success && response.data) {
           this.pagination = response.data;
-          this.borrows = response.data.items;
+          this.borrows = response.data.items as MyBorrowsResponse[];
           this.totalPages = Math.ceil(response.data.totalCount / this.pageSize);
         } else {
           this.borrows = [];
@@ -61,13 +63,13 @@ export class BorrowListComponent implements OnInit {
     });
   }
 
-  onReturn(borrow: BorrowDto): void {
+  onReturn(borrow: MyBorrowsResponse): void {
     if (!confirm(`Return "${borrow.bookTitle}"?`)) return;
 
-    this.borrowService.returnBorrow({ borrowId: borrow.id }).subscribe({
+    this.borrowService.returnBorrow(borrow.id).subscribe({
       next: (response) => {
-        if (response.success) {
-          this.showToast('success', `Book "${borrow.bookTitle}" returned successfully.`);
+        if (response.success && response.data) {
+          this.showToast('success', `Book "${response.data.bookTitle}" returned successfully.`);
           this.loadBorrows();
         } else {
           this.showToast('error', response.errors?.join(' ') || 'Failed to return book');
@@ -92,7 +94,7 @@ export class BorrowListComponent implements OnInit {
 
   getStatusBadge(status: string): string {
     switch (status?.toLowerCase()) {
-      case 'active': return 'badge-active';
+      case 'borrowed': return 'badge-active';
       case 'returned': return 'badge-returned';
       case 'overdue': return 'badge-overdue';
       default: return 'badge-default';

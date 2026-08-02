@@ -59,17 +59,17 @@ export class BookFormComponent implements OnInit {
       next: (response) => {
         this.loading = false;
         if (response.success && response.data) {
-          const book = response.data;
+          const data = response.data;
           this.form = {
-            title: book.title,
-            isbn: book.isbn,
-            description: book.description || '',
-            publisher: book.publisher || '',
-            publishedYear: book.publishedYear,
-            language: book.language || '',
-            imageUrl: book.imageUrl || '',
-            authorId: book.authorId,
-            categoryId: book.categoryId
+            title: data.title,
+            isbn: data.isbn,
+            description: data.description || '',
+            publisher: data.publisher || '',
+            publishedYear: data.publishedYear,
+            language: data.language || '',
+            imageUrl: data.imageUrl || '',
+            authorId: '',
+            categoryId: ''
           };
         } else {
           this.errorMessage = response.errors?.join(' ') || 'Failed to load book';
@@ -86,18 +86,11 @@ export class BookFormComponent implements OnInit {
     this.errors = {};
     this.submitting = true;
 
-    // Basic validation
     if (!this.form.title.trim()) {
       this.errors.title = 'Title is required';
     }
     if (!this.form.isbn.trim()) {
       this.errors.isbn = 'ISBN is required';
-    }
-    if (!this.form.authorId) {
-      this.errors.authorId = 'Author is required';
-    }
-    if (!this.form.categoryId) {
-      this.errors.categoryId = 'Category is required';
     }
 
     if (Object.keys(this.errors).length > 0) {
@@ -105,24 +98,34 @@ export class BookFormComponent implements OnInit {
       return;
     }
 
-    const request = {
+    const request: CreateBookRequest = {
       title: this.form.title.trim(),
       isbn: this.form.isbn.trim(),
-      description: this.form.description.trim() || null,
-      publisher: this.form.publisher.trim() || null,
-      publishedYear: this.form.publishedYear,
-      language: this.form.language.trim() || null,
-      imageUrl: this.form.imageUrl.trim() || null,
+      description: this.form.description.trim() || undefined,
+      publisher: this.form.publisher.trim() || undefined,
+      publishedYear: this.form.publishedYear ?? undefined,
+      language: this.form.language.trim() || undefined,
+      imageUrl: this.form.imageUrl.trim() || undefined,
       authorId: this.form.authorId,
       categoryId: this.form.categoryId
     };
 
     if (this.isEdit && this.bookId) {
-      this.bookService.update(this.bookId, request as UpdateBookRequest).subscribe({
+      const updateRequest: UpdateBookRequest = {
+        title: request.title,
+        description: request.description,
+        publisher: request.publisher,
+        publishedYear: request.publishedYear,
+        language: request.language,
+        imageUrl: request.imageUrl,
+        categoryId: request.categoryId ? request.categoryId : undefined
+      };
+
+      this.bookService.update(this.bookId, updateRequest).subscribe({
         next: (response) => {
           this.submitting = false;
-          if (response.success) {
-            this.showToast('success', `Book "${this.form.title}" updated successfully.`);
+          if (response.success && response.data) {
+            this.showToast('success', `Book "${response.data.title}" updated successfully.`);
             this.router.navigate(['/books']);
           } else {
             this.errorMessage = response.errors?.join(' ') || 'Failed to update book';
@@ -136,11 +139,11 @@ export class BookFormComponent implements OnInit {
         }
       });
     } else {
-      this.bookService.create(request as CreateBookRequest).subscribe({
+      this.bookService.create(request).subscribe({
         next: (response) => {
           this.submitting = false;
-          if (response.success) {
-            this.showToast('success', `Book "${this.form.title}" created successfully.`);
+          if (response.success && response.data) {
+            this.showToast('success', `Book "${response.data.title}" created successfully.`);
             this.router.navigate(['/books']);
           } else {
             this.errorMessage = response.errors?.join(' ') || 'Failed to create book';

@@ -1,18 +1,34 @@
 import { Component, OnInit } from '@angular/core';
 import { MemberService } from '../../../services/member.service';
-import { CreateMemberRequest, UpdateMemberRequest } from '../../../models/member.models';
+import {
+  CreateMemberRequest,
+  MemberDto,
+  MemberDetailDto,
+  UpdateMemberRequest,
+} from '../../../models/member.models';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import { ToastComponent, ToastMessage } from '../../../shared/components/toast/toast.component';
+import {
+  ToastComponent,
+  ToastMessage,
+} from '../../../shared/components/toast/toast.component';
 import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
+import { Observable } from 'rxjs';
+import { Result } from '../../../models/result.models';
 
 @Component({
   selector: 'app-member-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, ToastComponent, SpinnerComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    ToastComponent,
+    SpinnerComponent,
+  ],
   templateUrl: './member-form.component.html',
-  styleUrl: './member-form.component.scss'
+  styleUrl: './member-form.component.scss',
 })
 export class MemberFormComponent implements OnInit {
   isEdit = false;
@@ -25,13 +41,16 @@ export class MemberFormComponent implements OnInit {
     userId: '',
     membershipNumber: '',
     address: '',
-    phoneNumber: ''
+    phoneNumber: '',
   };
 
   errors: Record<string, string> = {};
   toastMessages: ToastMessage[] = [];
 
-  constructor(private memberService: MemberService, private router: Router) {}
+  constructor(
+    private memberService: MemberService,
+    private router: Router,
+  ) {}
 
   ngOnInit(): void {
     const id = history.state?.memberId;
@@ -45,24 +64,25 @@ export class MemberFormComponent implements OnInit {
   loadMember(id: string): void {
     this.loading = true;
     this.memberService.getById(id).subscribe({
-      next: (response) => {
+      next: (response: Result<MemberDetailDto>) => {
         this.loading = false;
         if (response.success && response.data) {
           const m = response.data;
           this.form = {
-            userId: m.userId,
+            userId: m.id,
             membershipNumber: m.membershipNumber,
             address: m.address,
-            phoneNumber: m.phoneNumber || ''
+            phoneNumber: m.phoneNumber || '',
           };
         } else {
-          this.errorMessage = response.errors?.join(' ') || 'Failed to load member';
+          this.errorMessage =
+            response.errors?.join(' ') || 'Failed to load member';
         }
       },
-      error: (err) => {
+      error: (err: any) => {
         this.loading = false;
         this.errorMessage = err.message || 'Failed to load member';
-      }
+      },
     });
   }
 
@@ -70,44 +90,63 @@ export class MemberFormComponent implements OnInit {
     this.errors = {};
     this.submitting = true;
 
-    if (!this.form.membershipNumber.trim()) this.errors.membershipNumber = 'Membership number is required';
-    if (!this.form.address.trim()) this.errors.address = 'Address is required';
-    if (Object.keys(this.errors).length > 0) { this.submitting = false; return; }
+    if (!this.form.membershipNumber.trim())
+      this.errors['membershipNumber'] = 'Membership number is required';
+    if (!this.form.address.trim())
+      this.errors['address'] = 'Address is required';
+    if (Object.keys(this.errors).length > 0) {
+      this.submitting = false;
+      return;
+    }
 
     const request = {
       userId: this.form.userId,
       membershipNumber: this.form.membershipNumber.trim(),
       address: this.form.address.trim(),
-      phoneNumber: this.form.phoneNumber.trim() || null
+      phoneNumber: this.form.phoneNumber.trim() || null,
     };
 
-    const obs = this.isEdit && this.memberId
-      ? this.memberService.update(this.memberId, request as UpdateMemberRequest)
-      : this.memberService.create(request as CreateMemberRequest);
+    const obs =
+      (this.isEdit && this.memberId
+        ? this.memberService.update(
+            this.memberId,
+            request as UpdateMemberRequest,
+          )
+        : this.memberService.create(request as CreateMemberRequest)) as Observable<
+      Result<MemberDto | MemberDetailDto>
+    >;
 
     obs.subscribe({
-      next: (response) => {
+      next: (response: Result<MemberDto | MemberDetailDto>) => {
         this.submitting = false;
         if (response.success) {
-          this.showToast('success', `Member "${this.form.membershipNumber}" ${this.isEdit ? 'updated' : 'created'} successfully.`);
+          this.showToast(
+            'success',
+            `Member "${this.form.membershipNumber}" ${this.isEdit ? 'updated' : 'created'} successfully.`,
+          );
           this.router.navigate(['/members']);
         } else {
           this.errorMessage = response.errors?.join(' ') || 'Operation failed';
           this.showToast('error', this.errorMessage);
         }
       },
-      error: (err) => {
+      error: (err: any) => {
         this.submitting = false;
         this.errorMessage = err.message || 'Operation failed';
         this.showToast('error', this.errorMessage);
-      }
+      },
     });
   }
 
-  onCancel(): void { this.router.navigate(['/members']); }
-
+  onCancel(): void {
+    this.router.navigate(['/members']);
+  }
   private showToast(type: ToastMessage['type'], message: string): void {
-    this.toastMessages = ToastComponent.create(this.toastMessages, type, message);
+    this.toastMessages = ToastComponent.create(
+      this.toastMessages,
+      type,
+      message,
+    );
   }
   onDismissToast(id: string): void {
     this.toastMessages = this.toastMessages.filter((t) => t.id !== id);

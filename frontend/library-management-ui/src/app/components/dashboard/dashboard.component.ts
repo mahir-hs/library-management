@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ReportService } from '../../services/report.service';
 import { AuthService } from '../../services/auth.service';
 import { ReportSummaryDto } from '../../models/report.models';
@@ -6,7 +7,7 @@ import { ReportSummaryDto } from '../../models/report.models';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })

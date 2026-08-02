@@ -28,11 +28,7 @@ export class LoginComponent {
     this.authService.login({ email: this.email, password: this.password }).subscribe({
       next: (response) => {
         this.loading = false;
-        if (response.success) {
-          this.router.navigate(['/']);
-        } else {
-          this.errorMessage = response.errors?.join(' ') || 'Login failed';
-        }
+        this.router.navigate(['/']);
       },
       error: (err) => {
         this.loading = false;

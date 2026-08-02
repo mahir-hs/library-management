@@ -2,11 +2,14 @@ import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
 import { roleGuard } from './guards/role.guard';
 import { LoginComponent } from './components/auth/login.component';
+import { RegisterComponent } from './components/auth/register.component';
 import { AppLayoutComponent } from './components/layout/app-layout.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { UsersListComponent } from './components/users/users-list/users-list.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
   {
     path: '',
     component: AppLayoutComponent,
@@ -30,6 +33,7 @@ export const routes: Routes = [
       { path: 'borrows/:id', loadComponent: () => import('./components/borrows/borrow-detail/borrow-detail.component').then(m => m.BorrowDetailComponent), canActivate: [authGuard] },
       { path: 'reservations', loadComponent: () => import('./components/reservations/reservation-list/reservation-list.component').then(m => m.ReservationListComponent), canActivate: [authGuard] },
       { path: 'reports', loadComponent: () => import('./components/reports/reports-page/reports-page.component').then(m => m.ReportsPageComponent), canActivate: [authGuard, roleGuard, { data: { roles: ['Admin', 'Librarian'] } }] },
+      { path: 'users', loadComponent: () => import('./components/users/users-list/users-list.component').then(m => m.UsersListComponent), canActivate: [authGuard, roleGuard, { data: { roles: ['Admin', 'Librarian'] } }] },
       { path: '**', redirectTo: '' }
     ]
   },

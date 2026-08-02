@@ -45,4 +45,15 @@ public class UsersController : BaseController
 
         return Ok(result);
     }
+
+    /// <summary>
+    /// Get all users (paginated)
+    /// </summary>
+    [HttpGet]
+    [ProducesResponseType(typeof(PaginatedResult<UserDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAllUsers([FromQuery] GetAllUsersQuery query, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(query, cancellationToken);
+        return Ok(result);
+    }
 }

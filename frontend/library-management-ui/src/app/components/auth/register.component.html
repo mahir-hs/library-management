@@ -1,0 +1,108 @@
+<div class="login-container">
+  <div class="login-card">
+    <h1>Library Management</h1>
+    <h2>Create Account</h2>
+
+    <form (ngSubmit)="onRegister()" #registerForm="ngForm">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input
+          type="text"
+          id="username"
+          [(ngModel)]="form.username"
+          name="username"
+          required
+          minlength="3"
+          placeholder="Choose a username"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          type="email"
+          id="email"
+          [(ngModel)]="form.email"
+          name="email"
+          required
+          email
+          placeholder="Enter your email"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="fullName">Full Name</label>
+        <input
+          type="text"
+          id="fullName"
+          [(ngModel)]="form.fullName"
+          name="fullName"
+          required
+          placeholder="Enter your full name"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          [(ngModel)]="form.password"
+          name="password"
+          required
+          minlength="6"
+          placeholder="Create a password"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="phoneNumber">Phone Number</label>
+        <input
+          type="text"
+          id="phoneNumber"
+          [(ngModel)]="form.phoneNumber"
+          name="phoneNumber"
+          placeholder="Enter your phone number"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="role">Role</label>
+        <select id="role" [(ngModel)]="form.role" name="role">
+          <option value="Member">Member</option>
+          <option value="Librarian">Librarian</option>
+          <option value="Admin">Admin</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="branchId">Branch</label>
+        <select id="branchId" [(ngModel)]="form.branchId" name="branchId" required>
+          <option value="">Select a branch</option>
+          <option *ngFor="let branch of branches" [value]="branch.id">
+            {{ branch.name }} ({{ branch.code }})
+          </option>
+        </select>
+        <div class="error-message" *ngIf="branches.length === 0 && !loading">
+          No branches available. Please contact an administrator.
+        </div>
+      </div>
+
+      <div class="error-message" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <div class="success-message" *ngIf="successMessage">
+        {{ successMessage }}
+      </div>
+
+      <button type="submit" [disabled]="loading || !registerForm.form.valid">
+        {{ loading ? 'Creating Account...' : 'Register' }}
+      </button>
+    </form>
+
+    <p class="link-text">
+      Already have an account? <a routerLink="/login">Sign In</a>
+    </p>
+  </div>
+</div>

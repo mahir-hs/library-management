@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { LoginRequest, RegisterRequest, AuthResponse, UserDto } from '../models/auth.models';
-import { Result } from '../models/result.models';
 
 @Injectable({
   providedIn: 'root'
@@ -14,22 +13,18 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  login(request: LoginRequest): Observable<Result<AuthResponse>> {
-    return this.http.post<Result<AuthResponse>>(`${environment.apiUrl}/auth/login`, request).pipe(
+  login(request: LoginRequest): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/login`, request).pipe(
       tap(response => {
-        if (response.success && response.data) {
-          this.storeAuthData(response.data);
-        }
+        this.storeAuthData(response);
       })
     );
   }
 
-  register(request: RegisterRequest): Observable<Result<AuthResponse>> {
-    return this.http.post<Result<AuthResponse>>(`${environment.apiUrl}/auth/register`, request).pipe(
+  register(request: RegisterRequest): Observable<UserDto> {
+    return this.http.post<UserDto>(`${environment.apiUrl}/auth/register`, request).pipe(
       tap(response => {
-        if (response.success && response.data) {
-          this.storeAuthData(response.data);
-        }
+        // Registration doesn't auto-login; user must log in separately
       })
     );
   }
@@ -58,19 +53,34 @@ export class AuthService {
     return sessionStorage.getItem('authToken');
   }
 
+  refreshToken(): Observable<AuthResponse> {
+    const refreshToken = sessionStorage.getItem('refreshToken');
+    const accessToken = sessionStorage.getItem('authToken');
+    if (!refreshToken || !accessToken) {
+      throw new Error('No refresh token available');
+    }
+    return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/refresh`, {
+      accessToken,
+      refreshToken
+    }).pipe(
+      tap(response => {
+        this.storeAuthData(response);
+      })
+    );
+  }
+
   private storeAuthData(response: AuthResponse): void {
-    sessionStorage.setItem('authToken', response.token);
+    sessionStorage.setItem('authToken', response.accessToken);
     sessionStorage.setItem('refreshToken', response.refreshToken);
     const user: UserDto = {
       id: response.userId,
-      username: response.email,
+      username: response.username,
       email: response.email,
       fullName: response.fullName,
       phoneNumber: '',
       role: response.role,
       isActive: true,
-      lastLoginAt: new Date().toISOString(),
-      branchId: ''
+      lastLoginAt: new Date().toISOString()
     };
     sessionStorage.setItem('currentUser', JSON.stringify(user));
     this.currentUserSubject.next(user);

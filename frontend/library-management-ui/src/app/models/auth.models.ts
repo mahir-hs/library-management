@@ -14,12 +14,14 @@ export interface RegisterRequest {
 }
 
 export interface AuthResponse {
-  token: string;
-  refreshToken: string;
   userId: string;
+  username: string;
   email: string;
-  role: string;
   fullName: string;
+  role: string;
+  accessToken: string;
+  refreshToken: string;
+  expiresAt: string;
 }
 
 export interface UserDto {
@@ -31,5 +33,4 @@ export interface UserDto {
   role: string;
   isActive: boolean;
   lastLoginAt: string;
-  branchId: string;
 }
