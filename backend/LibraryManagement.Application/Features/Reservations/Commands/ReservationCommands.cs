@@ -6,3 +6,5 @@ namespace LibraryManagement.Application.Features.Reservations.Commands;
 public record CreateReservationCommand(Guid MemberId, Guid BookId) : IRequest<ReservationDto>;
 
 public record CancelReservationCommand(Guid Id, string Reason) : IRequest<ReservationDto>;
+
+public record FulfillReservationCommand(Guid Id, Guid BookCopyId) : IRequest<ReservationDto>;

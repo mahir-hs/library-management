@@ -1,18 +1,30 @@
 import { Component, OnInit } from '@angular/core';
 import { BookService } from '../../../services/book.service';
-import { CreateBookRequest, UpdateBookRequest } from '../../../models/book.models';
+import {
+  CreateBookRequest,
+  UpdateBookRequest,
+} from '../../../models/book.models';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import { ToastComponent, ToastMessage } from '../../../shared/components/toast/toast.component';
+import {
+  ToastComponent,
+  ToastMessage,
+} from '../../../shared/components/toast/toast.component';
 import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
 
 @Component({
   selector: 'app-book-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, ToastComponent, SpinnerComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    ToastComponent,
+    SpinnerComponent,
+  ],
   templateUrl: './book-form.component.html',
-  styleUrl: './book-form.component.scss'
+  styleUrl: './book-form.component.scss',
 })
 export class BookFormComponent implements OnInit {
   isEdit = false;
@@ -30,7 +42,7 @@ export class BookFormComponent implements OnInit {
     language: '',
     imageUrl: '',
     authorId: '',
-    categoryId: ''
+    categoryId: '',
   };
 
   errors: Record<string, string> = {};
@@ -39,7 +51,7 @@ export class BookFormComponent implements OnInit {
 
   constructor(
     private bookService: BookService,
-    private router: Router
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -69,16 +81,17 @@ export class BookFormComponent implements OnInit {
             language: data.language || '',
             imageUrl: data.imageUrl || '',
             authorId: '',
-            categoryId: ''
+            categoryId: '',
           };
         } else {
-          this.errorMessage = response.errors?.join(' ') || 'Failed to load book';
+          this.errorMessage =
+            response.errors?.join(' ') || 'Failed to load book';
         }
       },
       error: (err) => {
         this.loading = false;
         this.errorMessage = err.message || 'Failed to load book';
-      }
+      },
     });
   }
 
@@ -87,10 +100,10 @@ export class BookFormComponent implements OnInit {
     this.submitting = true;
 
     if (!this.form.title.trim()) {
-      this.errors.title = 'Title is required';
+      this.errors['title'] = 'Title is required';
     }
     if (!this.form.isbn.trim()) {
-      this.errors.isbn = 'ISBN is required';
+      this.errors['isbn'] = 'ISBN is required';
     }
 
     if (Object.keys(this.errors).length > 0) {
@@ -107,7 +120,7 @@ export class BookFormComponent implements OnInit {
       language: this.form.language.trim() || undefined,
       imageUrl: this.form.imageUrl.trim() || undefined,
       authorId: this.form.authorId,
-      categoryId: this.form.categoryId
+      categoryId: this.form.categoryId,
     };
 
     if (this.isEdit && this.bookId) {
@@ -118,17 +131,21 @@ export class BookFormComponent implements OnInit {
         publishedYear: request.publishedYear,
         language: request.language,
         imageUrl: request.imageUrl,
-        categoryId: request.categoryId ? request.categoryId : undefined
+        categoryId: request.categoryId ? request.categoryId : undefined,
       };
 
       this.bookService.update(this.bookId, updateRequest).subscribe({
         next: (response) => {
           this.submitting = false;
           if (response.success && response.data) {
-            this.showToast('success', `Book "${response.data.title}" updated successfully.`);
+            this.showToast(
+              'success',
+              `Book "${response.data.title}" updated successfully.`,
+            );
             this.router.navigate(['/books']);
           } else {
-            this.errorMessage = response.errors?.join(' ') || 'Failed to update book';
+            this.errorMessage =
+              response.errors?.join(' ') || 'Failed to update book';
             this.showToast('error', this.errorMessage);
           }
         },
@@ -136,17 +153,21 @@ export class BookFormComponent implements OnInit {
           this.submitting = false;
           this.errorMessage = err.message || 'Failed to update book';
           this.showToast('error', this.errorMessage);
-        }
+        },
       });
     } else {
       this.bookService.create(request).subscribe({
         next: (response) => {
           this.submitting = false;
           if (response.success && response.data) {
-            this.showToast('success', `Book "${response.data.title}" created successfully.`);
+            this.showToast(
+              'success',
+              `Book "${response.data.title}" created successfully.`,
+            );
             this.router.navigate(['/books']);
           } else {
-            this.errorMessage = response.errors?.join(' ') || 'Failed to create book';
+            this.errorMessage =
+              response.errors?.join(' ') || 'Failed to create book';
             this.showToast('error', this.errorMessage);
           }
         },
@@ -154,7 +175,7 @@ export class BookFormComponent implements OnInit {
           this.submitting = false;
           this.errorMessage = err.message || 'Failed to create book';
           this.showToast('error', this.errorMessage);
-        }
+        },
       });
     }
   }
@@ -164,7 +185,11 @@ export class BookFormComponent implements OnInit {
   }
 
   private showToast(type: ToastMessage['type'], message: string): void {
-    this.toastMessages = ToastComponent.create(this.toastMessages, type, message);
+    this.toastMessages = ToastComponent.create(
+      this.toastMessages,
+      type,
+      message,
+    );
   }
 
   onDismissToast(id: string): void {

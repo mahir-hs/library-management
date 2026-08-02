@@ -4,7 +4,10 @@ import { BookDto } from '../../../models/book.models';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
-import { ToastComponent, ToastMessage } from '../../../shared/components/toast/toast.component';
+import {
+  ToastComponent,
+  ToastMessage,
+} from '../../../shared/components/toast/toast.component';
 import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
 
 @Component({
@@ -12,7 +15,7 @@ import { SpinnerComponent } from '../../../shared/components/spinner/spinner.com
   standalone: true,
   imports: [CommonModule, RouterModule, ToastComponent, SpinnerComponent],
   templateUrl: './book-detail.component.html',
-  styleUrl: './book-detail.component.scss'
+  styleUrl: './book-detail.component.scss',
 })
 export class BookDetailComponent implements OnInit {
   book: BookDto | null = null;
@@ -24,7 +27,7 @@ export class BookDetailComponent implements OnInit {
   constructor(
     private bookService: BookService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -44,20 +47,21 @@ export class BookDetailComponent implements OnInit {
         if (response.success && response.data) {
           this.book = response.data;
         } else {
-          this.errorMessage = response.errors?.join(' ') || 'Failed to load book';
+          this.errorMessage =
+            response.errors?.join(' ') || 'Failed to load book';
         }
       },
       error: (err) => {
         this.loading = false;
         this.errorMessage = err.message || 'Failed to load book';
-      }
+      },
     });
   }
 
   onEdit(): void {
     if (this.book) {
       this.router.navigate(['/books', this.book.id, 'edit'], {
-        state: { bookId: this.book.id }
+        state: { bookId: this.book.id },
       });
     }
   }
@@ -70,7 +74,20 @@ export class BookDetailComponent implements OnInit {
     return new Date(dateStr).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
     });
+  }
+
+  onDismissToast(id: string): void {
+    this.toastMessages = this.toastMessages.filter((t) => t.id !== id);
+  }
+
+  // Helper method for showing toast notifications
+  private showToast(type: ToastMessage['type'], message: string): void {
+    this.toastMessages = ToastComponent.create(
+      this.toastMessages,
+      type,
+      message,
+    );
   }
 }

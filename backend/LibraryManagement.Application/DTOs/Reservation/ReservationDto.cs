@@ -10,7 +10,9 @@ public class ReservationDto
     public Guid BookId { get; set; }
     public required string BookTitle { get; set; }
     public required string ISBN { get; set; }
+    public int PositionInQueue { get; set; }
     public ReservationStatus Status { get; set; }
     public DateTime ReservedAt { get; set; }
     public DateTime? ExpiresAt { get; set; }
+    public DateTime? FulfilledAt { get; set; }
 }

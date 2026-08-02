@@ -1,12 +1,13 @@
 <div class="page">
   <div class="page-header">
     <h2>Books</h2>
-    <button class="btn btn-primary" routerLink="/books/new">
-      + New Book
-    </button>
+    <button class="btn btn-primary" routerLink="/books/new">+ New Book</button>
   </div>
 
-  <app-toast [toasts]="toastMessages" (dismiss)="onDismissToast($event)"></app-toast>
+  <app-toast
+    [toasts]="toastMessages"
+    (dismiss)="onDismissToast($event)"
+  ></app-toast>
 
   <div class="error-message" *ngIf="errorMessage">
     {{ errorMessage }}
@@ -53,7 +54,10 @@
             <td>{{ book.authorName }}</td>
             <td>{{ book.categoryName }}</td>
             <td>
-              <span class="badge" [class]="getStatusBadge(book.availableCopies)">
+              <span
+                class="badge"
+                [class]="getStatusBadge(book.availableCopies)"
+              >
                 {{ getStatusText(book.availableCopies) }}
               </span>
             </td>

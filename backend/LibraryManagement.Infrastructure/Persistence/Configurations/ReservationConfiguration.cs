@@ -20,6 +20,11 @@ public class ReservationConfiguration : IEntityTypeConfiguration<Reservation>
             .IsRequired()
             .HasColumnName("book_id");
 
+        builder.Property(r => r.PositionInQueue)
+            .IsRequired()
+            .HasDefaultValue(0)
+            .HasColumnName("position_in_queue");
+
         builder.Property(r => r.ReservedAt)
             .IsRequired()
             .HasColumnName("reserved_at");
@@ -27,6 +32,9 @@ public class ReservationConfiguration : IEntityTypeConfiguration<Reservation>
         builder.Property(r => r.ExpiresAt)
             .HasColumnName("expires_at")
             .HasComment("Reservation expires 48 hours after being fulfilled (book held for member)");
+
+        builder.Property(r => r.FulfilledAt)
+            .HasColumnName("fulfilled_at");
 
         builder.Property(r => r.Status)
             .IsRequired()

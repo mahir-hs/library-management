@@ -75,3 +75,11 @@ public class OverdueBorrowsByMemberSpecification : SpecificationBase<BorrowRecor
         AddInclude(br => br.BookCopy);
     }
 }
+
+public class ActiveBorrowsByMemberSpecification : SpecificationBase<BorrowRecord>
+{
+    public ActiveBorrowsByMemberSpecification(Guid memberId)
+    {
+        Criteria = br => br.MemberId == memberId && br.Status == BorrowStatus.Borrowed;
+    }
+}

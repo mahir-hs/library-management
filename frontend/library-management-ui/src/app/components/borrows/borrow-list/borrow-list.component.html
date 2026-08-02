@@ -2,14 +2,25 @@
   <div class="page-header">
     <h2>My Borrows</h2>
     <div class="header-actions">
-      <button class="btn btn-sm" [class.btn-active]="showOverdueOnly" (click)="onToggleOverdue()">
-        {{ showOverdueOnly ? 'Show All' : 'Overdue Only' }}
+      @if (isAdminOrLibrarian) {
+        <button
+          class="btn btn-sm"
+          [class.btn-active]="showOverdueOnly"
+          (click)="onToggleOverdue()"
+        >
+          {{ showOverdueOnly ? "Show All" : "Overdue Only" }}
+        </button>
+      }
+      <button class="btn btn-primary" routerLink="/borrows/new">
+        + New Borrow
       </button>
-      <button class="btn btn-primary" routerLink="/borrows/new">+ New Borrow</button>
     </div>
   </div>
 
-  <app-toast [toasts]="toastMessages" (dismiss)="onDismissToast($event)"></app-toast>
+  <app-toast
+    [toasts]="toastMessages"
+    (dismiss)="onDismissToast($event)"
+  ></app-toast>
 
   <div class="error-message" *ngIf="errorMessage">
     {{ errorMessage }}
@@ -29,7 +40,6 @@
           <th>Borrowed</th>
           <th>Due Date</th>
           <th>Status</th>
-          <th>Fine</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -37,17 +47,21 @@
         @for (borrow of borrows; track borrow.id) {
           <tr [class.overdue-row]="borrow.status === 'Overdue'">
             <td>{{ borrow.bookTitle }}</td>
-            <td>{{ borrow.borrowedDate | date:'mediumDate' }}</td>
-            <td>{{ borrow.dueDate | date:'mediumDate' }}</td>
+            <td>{{ borrow.borrowedAt | date: "mediumDate" }}</td>
+            <td>{{ borrow.dueDate | date: "mediumDate" }}</td>
             <td>
               <span class="badge" [class]="getStatusBadge(borrow.status)">
                 {{ borrow.status }}
               </span>
             </td>
-            <td>{{ borrow.fineAmount > 0 ? '$' + borrow.fineAmount : '—' }}</td>
             <td class="actions">
-              @if (borrow.status === 'Active') {
-                <button class="btn btn-sm btn-return" (click)="onReturn(borrow)">Return</button>
+              @if (borrow.status === "Active") {
+                <button
+                  class="btn btn-sm btn-return"
+                  (click)="onReturn(borrow)"
+                >
+                  Return
+                </button>
               }
             </td>
           </tr>
@@ -62,11 +76,27 @@
   </div>
 
   <div class="pagination" *ngIf="pagination && !loading">
-    <div class="pagination-info">Showing {{ borrows.length }} of {{ pagination.totalCount }}</div>
+    <div class="pagination-info">
+      Showing {{ borrows.length }} of {{ pagination.totalCount }}
+    </div>
     <div class="pagination-controls">
-      <button class="btn btn-sm" [disabled]="currentPage <= 1" (click)="onPageChange(currentPage - 1)">← Prev</button>
-      <span class="page-indicator">Page {{ currentPage }} of {{ totalPages }}</span>
-      <button class="btn btn-sm" [disabled]="currentPage >= totalPages" (click)="onPageChange(currentPage + 1)">Next →</button>
+      <button
+        class="btn btn-sm"
+        [disabled]="currentPage <= 1"
+        (click)="onPageChange(currentPage - 1)"
+      >
+        ← Prev
+      </button>
+      <span class="page-indicator"
+        >Page {{ currentPage }} of {{ totalPages }}</span
+      >
+      <button
+        class="btn btn-sm"
+        [disabled]="currentPage >= totalPages"
+        (click)="onPageChange(currentPage + 1)"
+      >
+        Next →
+      </button>
     </div>
   </div>
 </div>

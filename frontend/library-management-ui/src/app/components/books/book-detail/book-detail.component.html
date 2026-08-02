@@ -2,10 +2,15 @@
   <div class="page-header">
     <button class="btn btn-back" (click)="onBack()">← Back to Books</button>
     <h2>Book Details</h2>
-    <button class="btn btn-primary" *ngIf="book" (click)="onEdit()">Edit Book</button>
+    <button class="btn btn-primary" *ngIf="book" (click)="onEdit()">
+      Edit Book
+    </button>
   </div>
 
-  <app-toast [toasts]="toastMessages" (dismiss)="onDismissToast($event)"></app-toast>
+  <app-toast
+    [toasts]="toastMessages"
+    (dismiss)="onDismissToast($event)"
+  ></app-toast>
 
   <div class="error-message" *ngIf="errorMessage">
     {{ errorMessage }}
@@ -19,8 +24,17 @@
   <div class="detail-card" *ngIf="book && !loading">
     <div class="detail-header">
       <h3>{{ book.title }}</h3>
-      <span class="badge" [class]="book.availableCopies > 0 ? 'badge-available' : 'badge-unavailable'">
-        {{ book.availableCopies > 0 ? book.availableCopies + ' available' : 'Unavailable' }}
+      <span
+        class="badge"
+        [class]="
+          book.availableCopies > 0 ? 'badge-available' : 'badge-unavailable'
+        "
+      >
+        {{
+          book.availableCopies > 0
+            ? book.availableCopies + " available"
+            : "Unavailable"
+        }}
       </span>
     </div>
 
@@ -39,15 +53,15 @@
       </div>
       <div class="detail-item">
         <span class="detail-label">Publisher</span>
-        <span class="detail-value">{{ book.publisher || '—' }}</span>
+        <span class="detail-value">{{ book.publisher || "—" }}</span>
       </div>
       <div class="detail-item">
         <span class="detail-label">Published Year</span>
-        <span class="detail-value">{{ book.publishedYear || '—' }}</span>
+        <span class="detail-value">{{ book.publishedYear || "—" }}</span>
       </div>
       <div class="detail-item">
         <span class="detail-label">Language</span>
-        <span class="detail-value">{{ book.language || '—' }}</span>
+        <span class="detail-value">{{ book.language || "—" }}</span>
       </div>
       <div class="detail-item">
         <span class="detail-label">Total Copies</span>

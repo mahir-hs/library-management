@@ -4,7 +4,10 @@ import { BranchDto } from '../../../models/branch.models';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
-import { ToastComponent, ToastMessage } from '../../../shared/components/toast/toast.component';
+import {
+  ToastComponent,
+  ToastMessage,
+} from '../../../shared/components/toast/toast.component';
 import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
 
 @Component({
@@ -12,7 +15,7 @@ import { SpinnerComponent } from '../../../shared/components/spinner/spinner.com
   standalone: true,
   imports: [CommonModule, RouterModule, ToastComponent, SpinnerComponent],
   templateUrl: './branch-detail.component.html',
-  styleUrl: './branch-detail.component.scss'
+  styleUrl: './branch-detail.component.scss',
 })
 export class BranchDetailComponent implements OnInit {
   branch: BranchDto | null = null;
@@ -24,7 +27,7 @@ export class BranchDetailComponent implements OnInit {
   constructor(
     private branchService: BranchService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -45,19 +48,21 @@ export class BranchDetailComponent implements OnInit {
           this.branch = response.data;
         } else {
           this.errorMessage = response.errors?.join(' ') || 'Branch not found';
+          this.showToast('error', this.errorMessage);
         }
       },
       error: (err) => {
         this.loading = false;
         this.errorMessage = err.message || 'Failed to load branch';
-      }
+        this.showToast('error', this.errorMessage);
+      },
     });
   }
 
   onEdit(): void {
     if (this.branch) {
       this.router.navigate(['/branches', this.branch.id, 'edit'], {
-        state: { branchId: this.branch.id }
+        state: { branchId: this.branch.id },
       });
     }
   }
@@ -78,7 +83,21 @@ export class BranchDetailComponent implements OnInit {
     return new Date(dateStr).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
     });
+  }
+
+  // Added missing method to handle toast dismissal from template
+  onDismissToast(id: string): void {
+    this.toastMessages = this.toastMessages.filter((t) => t.id !== id);
+  }
+
+  // Added helper method for showing toast messages
+  private showToast(type: ToastMessage['type'], message: string): void {
+    this.toastMessages = ToastComponent.create(
+      this.toastMessages,
+      type,
+      message,
+    );
   }
 }

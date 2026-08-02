@@ -1,18 +1,39 @@
 import { Component, OnInit } from '@angular/core';
 import { BranchService } from '../../../services/branch.service';
-import { CreateBranchRequest, UpdateBranchRequest } from '../../../models/branch.models';
+import {
+  CreateBranchRequest,
+  UpdateBranchRequest,
+} from '../../../models/branch.models';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import { ToastComponent, ToastMessage } from '../../../shared/components/toast/toast.component';
+import {
+  ToastComponent,
+  ToastMessage,
+} from '../../../shared/components/toast/toast.component';
 import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
+
+// Defined explicit interface for form errors
+interface FormErrors {
+  name?: string;
+  code?: string;
+  address?: string;
+  phone?: string;
+  email?: string;
+}
 
 @Component({
   selector: 'app-branch-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, ToastComponent, SpinnerComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    ToastComponent,
+    SpinnerComponent,
+  ],
   templateUrl: './branch-form.component.html',
-  styleUrl: './branch-form.component.scss'
+  styleUrl: './branch-form.component.scss',
 })
 export class BranchFormComponent implements OnInit {
   isEdit = false;
@@ -26,16 +47,17 @@ export class BranchFormComponent implements OnInit {
     code: '',
     address: '',
     phone: '',
-    email: ''
+    email: '',
   };
 
-  errors: Record<string, string> = {};
+  // Typed with explicit optional properties
+  errors: FormErrors = {};
 
   toastMessages: ToastMessage[] = [];
 
   constructor(
     private branchService: BranchService,
-    private router: Router
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -61,16 +83,17 @@ export class BranchFormComponent implements OnInit {
             code: branch.code,
             address: branch.address,
             phone: branch.phone || '',
-            email: branch.email || ''
+            email: branch.email || '',
           };
         } else {
-          this.errorMessage = response.errors?.join(' ') || 'Failed to load branch';
+          this.errorMessage =
+            response.errors?.join(' ') || 'Failed to load branch';
         }
       },
       error: (err) => {
         this.loading = false;
         this.errorMessage = err.message || 'Failed to load branch';
-      }
+      },
     });
   }
 
@@ -78,7 +101,7 @@ export class BranchFormComponent implements OnInit {
     this.errors = {};
     this.submitting = true;
 
-    // Basic validation
+    // Basic validation using dot notation
     if (!this.form.name.trim()) {
       this.errors.name = 'Name is required';
     }
@@ -99,36 +122,46 @@ export class BranchFormComponent implements OnInit {
       code: this.form.code.trim(),
       address: this.form.address.trim(),
       phone: this.form.phone.trim() || null,
-      email: this.form.email.trim() || null
+      email: this.form.email.trim() || null,
     };
 
     if (this.isEdit && this.branchId) {
-      this.branchService.update(this.branchId, request as UpdateBranchRequest).subscribe({
-        next: (response) => {
-          this.submitting = false;
-          if (response.success) {
-            this.showToast('success', `Branch "${this.form.name}" updated successfully.`);
-            this.router.navigate(['/branches']);
-          } else {
-            this.errorMessage = response.errors?.join(' ') || 'Failed to update branch';
+      this.branchService
+        .update(this.branchId, request as UpdateBranchRequest)
+        .subscribe({
+          next: (response) => {
+            this.submitting = false;
+            if (response.success) {
+              this.showToast(
+                'success',
+                `Branch "${this.form.name}" updated successfully.`,
+              );
+              this.router.navigate(['/branches']);
+            } else {
+              this.errorMessage =
+                response.errors?.join(' ') || 'Failed to update branch';
+              this.showToast('error', this.errorMessage);
+            }
+          },
+          error: (err) => {
+            this.submitting = false;
+            this.errorMessage = err.message || 'Failed to update branch';
             this.showToast('error', this.errorMessage);
-          }
-        },
-        error: (err) => {
-          this.submitting = false;
-          this.errorMessage = err.message || 'Failed to update branch';
-          this.showToast('error', this.errorMessage);
-        }
-      });
+          },
+        });
     } else {
       this.branchService.create(request as CreateBranchRequest).subscribe({
         next: (response) => {
           this.submitting = false;
           if (response.success) {
-            this.showToast('success', `Branch "${this.form.name}" created successfully.`);
+            this.showToast(
+              'success',
+              `Branch "${this.form.name}" created successfully.`,
+            );
             this.router.navigate(['/branches']);
           } else {
-            this.errorMessage = response.errors?.join(' ') || 'Failed to create branch';
+            this.errorMessage =
+              response.errors?.join(' ') || 'Failed to create branch';
             this.showToast('error', this.errorMessage);
           }
         },
@@ -136,7 +169,7 @@ export class BranchFormComponent implements OnInit {
           this.submitting = false;
           this.errorMessage = err.message || 'Failed to create branch';
           this.showToast('error', this.errorMessage);
-        }
+        },
       });
     }
   }
@@ -146,7 +179,11 @@ export class BranchFormComponent implements OnInit {
   }
 
   private showToast(type: ToastMessage['type'], message: string): void {
-    this.toastMessages = ToastComponent.create(this.toastMessages, type, message);
+    this.toastMessages = ToastComponent.create(
+      this.toastMessages,
+      type,
+      message,
+    );
   }
 
   onDismissToast(id: string): void {

@@ -50,10 +50,17 @@ public class CreateReservationCommandHandler : IRequestHandler<CreateReservation
         }
         else
         {
+            // Calculate position in queue based on existing pending reservations for this book
+            var queueSpec = new ReservationsByBookSpecification(request.BookId);
+            var allReservations = await _unitOfWork.Reservations.GetAsync(queueSpec, cancellationToken);
+            var pendingCount = allReservations.Count(r => r.Status == ReservationStatus.Pending);
+            var positionInQueue = pendingCount + 1;
+
             var reservation = new Reservation
             {
                 MemberId = request.MemberId,
                 BookId = request.BookId,
+                PositionInQueue = positionInQueue,
                 ReservedAt = DateTimeOffset.UtcNow,
                 ExpiresAt = DateTimeOffset.UtcNow.AddDays(3),
                 Status = ReservationStatus.Pending
@@ -74,6 +81,7 @@ public class CreateReservationCommandHandler : IRequestHandler<CreateReservation
             BookId = request.BookId,
             BookTitle = book.Title,
             ISBN = book.ISBN,
+            PositionInQueue = existing is not null ? existing.PositionInQueue : (await _unitOfWork.Reservations.GetFirstAsync(existingSpec, cancellationToken))!.PositionInQueue,
             Status = ReservationStatus.Pending,
             ReservedAt = DateTimeOffset.UtcNow.DateTime,
             ExpiresAt = DateTimeOffset.UtcNow.AddDays(3).DateTime
@@ -122,6 +130,85 @@ public class CancelReservationCommandHandler : IRequestHandler<CancelReservation
             Status = ReservationStatus.Cancelled,
             ReservedAt = reservation.ReservedAt.DateTime,
             ExpiresAt = reservation.ExpiresAt?.DateTime
+        };
+    }
+}
+
+public class FulfillReservationCommandHandler : IRequestHandler<FulfillReservationCommand, ReservationDto>
+{
+    private readonly IUnitOfWork _unitOfWork;
+
+    public FulfillReservationCommandHandler(IUnitOfWork unitOfWork)
+    {
+        _unitOfWork = unitOfWork;
+    }
+
+    public async Task<ReservationDto> Handle(FulfillReservationCommand request, CancellationToken cancellationToken)
+    {
+        var reservation = await _unitOfWork.Reservations.GetByIdAsync(request.Id, cancellationToken);
+        if (reservation is null)
+        {
+            throw new NotFoundException("Reservation", request.Id);
+        }
+
+        if (reservation.Status != ReservationStatus.Pending)
+        {
+            throw new ConflictException("Only pending reservations can be fulfilled");
+        }
+
+        var bookCopy = await _unitOfWork.BookCopies.GetByIdAsync(request.BookCopyId, cancellationToken);
+        if (bookCopy is null)
+        {
+            throw new NotFoundException("BookCopy", request.BookCopyId);
+        }
+
+        if (bookCopy.Status != BookCopyStatus.Available)
+        {
+            throw new ConflictException("Book copy is not available for reservation fulfillment");
+        }
+
+        // Fulfill the reservation
+        reservation.Status = ReservationStatus.Fulfilled;
+        reservation.FulfilledAt = DateTimeOffset.UtcNow;
+        await _unitOfWork.Reservations.UpdateAsync(reservation, cancellationToken);
+
+        // Set the book copy to borrowed (it's now reserved for the member)
+        bookCopy.Status = BookCopyStatus.Borrowed;
+        await _unitOfWork.BookCopies.UpdateAsync(bookCopy, cancellationToken);
+
+        // Advance the queue: reassign position in queue for remaining pending reservations
+        var queueSpec = new ReservationsByBookSpecification(reservation.BookId);
+        var remainingReservations = await _unitOfWork.Reservations.GetAsync(queueSpec, cancellationToken);
+        var pendingReservations = remainingReservations
+            .Where(r => r.Status == ReservationStatus.Pending && r.Id != reservation.Id)
+            .OrderBy(r => r.ReservedAt)
+            .ToList();
+
+        for (int i = 0; i < pendingReservations.Count; i++)
+        {
+            pendingReservations[i].PositionInQueue = i + 1;
+            await _unitOfWork.Reservations.UpdateAsync(pendingReservations[i], cancellationToken);
+        }
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        var member = await _unitOfWork.Members.GetByIdAsync(reservation.MemberId, cancellationToken);
+        var user = member is not null ? await _unitOfWork.Users.GetByIdAsync(member.UserId, cancellationToken) : null;
+        var book = await _unitOfWork.Books.GetByIdAsync(reservation.BookId, cancellationToken);
+
+        return new ReservationDto
+        {
+            Id = reservation.Id,
+            MemberId = reservation.MemberId,
+            MemberName = user?.FullName ?? string.Empty,
+            BookId = reservation.BookId,
+            BookTitle = book?.Title ?? string.Empty,
+            ISBN = book?.ISBN ?? string.Empty,
+            PositionInQueue = reservation.PositionInQueue,
+            Status = ReservationStatus.Fulfilled,
+            ReservedAt = reservation.ReservedAt.DateTime,
+            ExpiresAt = reservation.ExpiresAt?.DateTime,
+            FulfilledAt = reservation.FulfilledAt?.DateTime
         };
     }
 }

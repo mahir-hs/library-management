@@ -9,6 +9,7 @@ public class MyReservationsResponse
     public required string ISBN { get; set; }
     public required string AuthorName { get; set; }
     public required string CategoryName { get; set; }
+    public int PositionInQueue { get; set; }
     public ReservationStatus Status { get; set; }
     public DateTime ReservedAt { get; set; }
     public DateTime? ExpiresAt { get; set; }

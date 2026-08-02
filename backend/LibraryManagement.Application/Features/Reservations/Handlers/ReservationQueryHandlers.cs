@@ -138,9 +138,11 @@ public static class ReservationMappers
             BookId = reservation.BookId,
             BookTitle = book?.Title ?? string.Empty,
             ISBN = book?.ISBN ?? string.Empty,
+            PositionInQueue = reservation.PositionInQueue,
             Status = reservation.Status,
             ReservedAt = reservation.ReservedAt.DateTime,
-            ExpiresAt = reservation.ExpiresAt?.DateTime
+            ExpiresAt = reservation.ExpiresAt?.DateTime,
+            FulfilledAt = reservation.FulfilledAt?.DateTime
         };
     }
 
@@ -157,6 +159,7 @@ public static class ReservationMappers
             ISBN = book?.ISBN ?? string.Empty,
             AuthorName = author?.Name ?? string.Empty,
             CategoryName = category?.Name ?? string.Empty,
+            PositionInQueue = reservation.PositionInQueue,
             Status = reservation.Status,
             ReservedAt = reservation.ReservedAt.DateTime,
             ExpiresAt = reservation.ExpiresAt?.DateTime

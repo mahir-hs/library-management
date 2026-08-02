@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ReservationService } from '../../../services/reservation.service';
+import { AuthService } from '../../../services/auth.service';
 import { MyReservationsResponse } from '../../../models/reservation.models';
 import { PaginatedResult } from '../../../models/result.models';
 import { CommonModule } from '@angular/common';
@@ -25,7 +26,15 @@ export class ReservationListComponent implements OnInit {
 
   toastMessages: ToastMessage[] = [];
 
-  constructor(private reservationService: ReservationService, private router: Router) {}
+  constructor(
+    private reservationService: ReservationService,
+    private authService: AuthService,
+    private router: Router
+  ) {}
+
+  get isAdminOrLibrarian(): boolean {
+    return this.authService.getRole() === 'Admin' || this.authService.getRole() === 'Librarian';
+  }
 
   ngOnInit(): void {
     this.loadReservations();

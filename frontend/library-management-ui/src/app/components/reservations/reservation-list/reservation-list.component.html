@@ -43,7 +43,9 @@
             <td>{{ res.reservedAt | date:'mediumDate' }}</td>
             <td class="actions">
               @if (res.status === 'Pending') {
-                <button class="btn btn-sm btn-fulfill" (click)="onFulfill(res)">Fulfill</button>
+                @if (isAdminOrLibrarian) {
+                  <button class="btn btn-sm btn-fulfill" (click)="onFulfill(res)">Fulfill</button>
+                }
                 <button class="btn btn-sm btn-cancel" (click)="onCancel(res)">Cancel</button>
               }
             </td>

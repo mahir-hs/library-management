@@ -10,8 +10,17 @@
     </div>
     <div class="form-group">
       <label for="memberId">Member ID *</label>
-      <input type="text" id="memberId" [(ngModel)]="form.memberId" name="memberId" required #mInput="ngModel">
+      <input
+        type="text"
+        id="memberId"
+        [(ngModel)]="form.memberId"
+        name="memberId"
+        required
+        #mInput="ngModel"
+        [readonly]="isMember"
+      >
       <span class="field-error" *ngIf="errors['memberId']">{{ errors['memberId'] }}</span>
+      <span class="field-hint" *ngIf="isMember">Your member ID is auto-filled</span>
     </div>
     <div class="form-actions">
       <button type="submit" class="btn btn-primary" [disabled]="submitting">{{ submitting ? 'Creating...' : 'Create Borrow' }}</button>

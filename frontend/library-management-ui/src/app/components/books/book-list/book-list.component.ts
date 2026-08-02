@@ -4,15 +4,25 @@ import { BookDto, BookSearchResponse } from '../../../models/book.models';
 import { PaginatedResult } from '../../../models/result.models';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
-import { ToastComponent, ToastMessage } from '../../../shared/components/toast/toast.component';
+import {
+  ToastComponent,
+  ToastMessage,
+} from '../../../shared/components/toast/toast.component';
 import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-book-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, ToastComponent, SpinnerComponent],
+  imports: [
+    CommonModule,
+    RouterModule,
+    ToastComponent,
+    SpinnerComponent,
+    FormsModule,
+  ],
   templateUrl: './book-list.component.html',
-  styleUrl: './book-list.component.scss'
+  styleUrl: './book-list.component.scss',
 })
 export class BookListComponent implements OnInit {
   books: BookSearchResponse[] = [];
@@ -27,10 +37,11 @@ export class BookListComponent implements OnInit {
   totalPages = 0;
 
   toastMessages: ToastMessage[] = [];
+  searchQuery: any;
 
   constructor(
     private bookService: BookService,
-    private router: Router
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -41,33 +52,37 @@ export class BookListComponent implements OnInit {
     this.loading = true;
     this.errorMessage = '';
 
-    this.bookService.search(
-      this.searchTitle || undefined,
-      this.searchAuthor || undefined,
-      this.searchIsbn || undefined,
-      undefined,
-      this.currentPage,
-      this.pageSize
-    ).subscribe({
-      next: (response) => {
-        this.loading = false;
-        if (response.success && response.data) {
-          this.pagination = response.data;
-          this.books = response.data.items;
-          this.totalPages = Math.ceil(response.data.totalCount / this.pageSize);
-        } else {
-          this.books = [];
-          this.totalPages = 0;
-          this.errorMessage = response.errors?.join(' ') || 'Failed to load books';
-        }
-      },
-      error: (err) => {
-      error: (err) => {
-        this.loading = false;
-        this.errorMessage = err.message || 'Failed to load books';
-        this.showToast('error', this.errorMessage);
-      }
-    });
+    this.bookService
+      .search(
+        this.searchTitle || undefined,
+        this.searchAuthor || undefined,
+        this.searchIsbn || undefined,
+        undefined,
+        this.currentPage,
+        this.pageSize,
+      )
+      .subscribe({
+        next: (response) => {
+          this.loading = false;
+          if (response.success && response.data) {
+            this.pagination = response.data;
+            this.books = response.data.items;
+            this.totalPages = Math.ceil(
+              response.data.totalCount / this.pageSize,
+            );
+          } else {
+            this.books = [];
+            this.totalPages = 0;
+            this.errorMessage =
+              response.errors?.join(' ') || 'Failed to load books';
+          }
+        },
+        error: (err) => {
+          this.loading = false;
+          this.errorMessage = err.message || 'Failed to load books';
+          this.showToast('error', this.errorMessage);
+        },
+      });
   }
 
   onSearch(): void {
@@ -95,7 +110,11 @@ export class BookListComponent implements OnInit {
   }
 
   onDelete(book: BookSearchResponse): void {
-    if (!confirm(`Are you sure you want to delete "${book.title}"? This action cannot be undone.`)) {
+    if (
+      !confirm(
+        `Are you sure you want to delete "${book.title}"? This action cannot be undone.`,
+      )
+    ) {
       return;
     }
 
@@ -107,7 +126,7 @@ export class BookListComponent implements OnInit {
       error: (err) => {
         this.errorMessage = err.message || 'Failed to delete book';
         this.showToast('error', this.errorMessage);
-      }
+      },
     });
   }
 
@@ -120,7 +139,11 @@ export class BookListComponent implements OnInit {
   }
 
   private showToast(type: ToastMessage['type'], message: string): void {
-    this.toastMessages = ToastComponent.create(this.toastMessages, type, message);
+    this.toastMessages = ToastComponent.create(
+      this.toastMessages,
+      type,
+      message,
+    );
   }
 
   onDismissToast(id: string): void {

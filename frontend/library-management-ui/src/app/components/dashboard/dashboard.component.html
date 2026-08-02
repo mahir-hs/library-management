@@ -1,14 +1,15 @@
 <div class="dashboard">
   <h2>Dashboard</h2>
 
-  <div class="error-message" *ngIf="errorMessage">
+  <div class="error-message" *ngIf="errorMessage && !isMember">
     {{ errorMessage }}
-    <button (click)="loadSummary()">Retry</button>
+    <button (click)="loadDashboard()">Retry</button>
   </div>
 
-  <div class="loading" *ngIf="loading">Loading dashboard...</div>
+  <div class="loading" *ngIf="loading && !isMember">Loading dashboard...</div>
 
-  <div class="summary-cards" *ngIf="summary && !loading">
+  <!-- Admin/Librarian Summary Cards -->
+  <div class="summary-cards" *ngIf="summary && !loading && !isMember">
     <div class="card">
       <div class="card-icon">📚</div>
       <div class="card-content">
@@ -36,9 +37,108 @@
     <div class="card">
       <div class="card-icon">⚠️</div>
       <div class="card-content">
-        <h3>{{ summary.overdueCount }}</h3>
+        <h3>{{ summary.overdueBorrows }}</h3>
         <p>Overdue Books</p>
       </div>
+    </div>
+  </div>
+
+  <!-- Member Quick Stats -->
+  <div class="member-stats" *ngIf="isMember">
+    <h3>My Activity</h3>
+    <div class="summary-cards">
+      <div class="card">
+        <div class="card-icon">📋</div>
+        <div class="card-content">
+          <h3>{{ activeBorrowsCount }}</h3>
+          <p>Active Borrows</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">⚠️</div>
+        <div class="card-content">
+          <h3>{{ overdueCount }}</h3>
+          <p>Overdue Books</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">⏳</div>
+        <div class="card-content">
+          <h3>{{ pendingReservationsCount }}</h3>
+          <p>Pending Reservations</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="member-section" *ngIf="myBorrows.length > 0">
+      <h4>Recent Borrows</h4>
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Book</th>
+              <th>Borrowed</th>
+              <th>Due Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let borrow of myBorrows">
+              <td>{{ borrow.bookTitle }}</td>
+              <td>{{ borrow.borrowedAt | date:'shortDate' }}</td>
+              <td>{{ borrow.dueDate | date:'shortDate' }}</td>
+              <td>
+                <span class="badge" [class.badge-overdue]="borrow.status === 'Overdue'"
+                      [class.badge-active]="borrow.status === 'Borrowed'"
+                      [class.badge-returned]="borrow.status === 'Returned'">
+                  {{ borrow.status }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="view-all">
+        <a routerLink="/borrows">View all my borrows →</a>
+      </p>
+    </div>
+
+    <div class="member-section" *ngIf="myReservations.length > 0">
+      <h4>My Reservations</h4>
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Book</th>
+              <th>Queue Position</th>
+              <th>Status</th>
+              <th>Reserved</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let reservation of myReservations">
+              <td>{{ reservation.bookTitle }}</td>
+              <td>{{ reservation.positionInQueue }}</td>
+              <td>
+                <span class="badge" [class.badge-pending]="reservation.status === 'Pending'"
+                      [class.badge-fulfilled]="reservation.status === 'Fulfilled'">
+                  {{ reservation.status }}
+                </span>
+              </td>
+              <td>{{ reservation.reservedAt | date:'shortDate' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="view-all">
+        <a routerLink="/reservations">View all reservations →</a>
+      </p>
+    </div>
+
+    <div class="member-section" *ngIf="myBorrows.length === 0 && myReservations.length === 0 && !memberLoading">
+      <p class="empty-state">No borrows or reservations yet. <a routerLink="/books">Browse books</a> to get started.</p>
     </div>
   </div>
 </div>

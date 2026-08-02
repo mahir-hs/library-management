@@ -70,14 +70,20 @@ public class AuthService : IAuthService
         string fullName,
         string phoneNumber,
         Guid branchId,
+        string role,
         CancellationToken cancellationToken = default)
     {
+        if (!Enum.TryParse<UserRole>(role, ignoreCase: true, out var userRole))
+        {
+            userRole = UserRole.Member;
+        }
+
         var user = new User
         {
             Username = username,
             Email = email,
             FullName = fullName,
-            Role = UserRole.Librarian,
+            Role = userRole,
             PhoneNumber = phoneNumber,
             BranchId = branchId,
             IsActive = true,

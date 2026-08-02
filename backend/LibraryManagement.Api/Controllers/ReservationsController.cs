@@ -61,6 +61,24 @@ public class ReservationsController : BaseController
     }
 
     /// <summary>
+    /// Fulfill a reservation (assign a book copy to the reserving member)
+    /// </summary>
+    [HttpPut("{id:guid}/fulfill")]
+    [Authorize(Roles = "Admin,Librarian")]
+    [ProducesResponseType(typeof(ReservationDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> FulfillReservation(
+        Guid id,
+        [FromBody] FulfillReservationRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var command = new FulfillReservationCommand(id, request.BookCopyId);
+        var result = await _mediator.Send(command, cancellationToken);
+        return Ok(result);
+    }
+
+    /// <summary>
     /// Get reservation by ID
     /// </summary>
     [HttpGet("{id:guid}")]

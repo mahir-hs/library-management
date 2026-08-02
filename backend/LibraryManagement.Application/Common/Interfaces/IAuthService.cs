@@ -11,7 +11,7 @@ public interface IAuthService
     /// <summary>
     /// Registers a new user
     /// </summary>
-    Task<Guid> RegisterAsync(string username, string email, string password, string fullName,string phoneNumber, Guid branchId, CancellationToken cancellationToken = default);
+    Task<Guid> RegisterAsync(string username, string email, string password, string fullName, string phoneNumber, Guid branchId, string role, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Validates and refreshes expired access token using refresh token

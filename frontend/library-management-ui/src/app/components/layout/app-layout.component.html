@@ -31,11 +31,11 @@
         <span class="icon">⏳</span>
         <span *ngIf="sidebarOpen">Reservations</span>
       </a>
-      <a routerLink="/reports" routerLinkActive="active">
+      <a routerLink="/reports" routerLinkActive="active" *ngIf="isAdminOrLibrarian">
         <span class="icon">📈</span>
         <span *ngIf="sidebarOpen">Reports</span>
       </a>
-      <a routerLink="/users" routerLinkActive="active">
+      <a routerLink="/users" routerLinkActive="active" *ngIf="isAdmin">
         <span class="icon">👤</span>
         <span *ngIf="sidebarOpen">Users</span>
       </a>

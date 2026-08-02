@@ -58,6 +58,14 @@ public class BorrowBookCommandHandler : IRequestHandler<BorrowBookCommand, Borro
             throw new ConflictException("Member has overdue borrows");
         }
 
+        // Check if member has reached the maximum number of active borrows (5)
+        var activeBorrowsSpec = new ActiveBorrowsByMemberSpecification(request.MemberId);
+        var activeBorrowsCount = await _unitOfWork.BorrowRecords.CountAsync(activeBorrowsSpec, cancellationToken);
+        if (activeBorrowsCount >= 5)
+        {
+            throw new ConflictException("Member has reached the maximum number of active borrows (5)");
+        }
+
         var borrowRecord = new BorrowRecord
         {
             MemberId = request.MemberId,

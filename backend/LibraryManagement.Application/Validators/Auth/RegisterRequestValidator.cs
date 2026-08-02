@@ -27,5 +27,12 @@ public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
             .NotEmpty().WithMessage("Full name is required")
             .MinimumLength(2).WithMessage("Full name must be at least 2 characters long")
             .MaximumLength(100).WithMessage("Full name must not exceed 100 characters");
+
+        RuleFor(x => x.Role)
+            .NotEmpty().WithMessage("Role is required")
+            .Must(r => r.Equals("Admin", StringComparison.OrdinalIgnoreCase)
+                    || r.Equals("Librarian", StringComparison.OrdinalIgnoreCase)
+                    || r.Equals("Member", StringComparison.OrdinalIgnoreCase))
+            .WithMessage("Role must be Admin, Librarian, or Member");
     }
 }
