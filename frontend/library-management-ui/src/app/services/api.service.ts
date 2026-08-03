@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -9,6 +9,13 @@ import { environment } from '../../environments/environment';
 })
 export class ApiService {
   private baseUrl = environment.apiUrl;
+
+  // Endpoints whose raw responses should NOT be wrapped in Result
+  private readonly RAW_RESPONSE_URLS = [
+    '/auth/login',
+    '/auth/refresh',
+    '/auth/register',
+  ];
 
   constructor(private http: HttpClient) {}
 
@@ -25,29 +32,73 @@ export class ApiService {
     return sessionStorage.getItem('authToken');
   }
 
+  private shouldWrapResponse(url: string): boolean {
+    return !this.RAW_RESPONSE_URLS.some(rawUrl => url.includes(rawUrl));
+  }
+
   get<T>(url: string): Observable<T> {
     return this.http.get<T>(`${this.baseUrl}${url}`, { headers: this.getHeaders() })
-      .pipe(catchError(this.handleError));
+      .pipe(
+        map((response: any) => {
+          if (this.shouldWrapResponse(url) && response && typeof response === 'object' && !Array.isArray(response) && !response.success) {
+            return { success: true, data: response, errors: null } as T;
+          }
+          return response;
+        }),
+        catchError(this.handleError)
+      );
   }
 
   post<T>(url: string, body: any): Observable<T> {
     return this.http.post<T>(`${this.baseUrl}${url}`, body, { headers: this.getHeaders() })
-      .pipe(catchError(this.handleError));
+      .pipe(
+        map((response: any) => {
+          if (this.shouldWrapResponse(url) && response && typeof response === 'object' && !Array.isArray(response) && !response.success) {
+            return { success: true, data: response, errors: null } as T;
+          }
+          return response;
+        }),
+        catchError(this.handleError)
+      );
   }
 
   put<T>(url: string, body: any): Observable<T> {
     return this.http.put<T>(`${this.baseUrl}${url}`, body, { headers: this.getHeaders() })
-      .pipe(catchError(this.handleError));
+      .pipe(
+        map((response: any) => {
+          if (this.shouldWrapResponse(url) && response && typeof response === 'object' && !Array.isArray(response) && !response.success) {
+            return { success: true, data: response, errors: null } as T;
+          }
+          return response;
+        }),
+        catchError(this.handleError)
+      );
   }
 
   patch<T>(url: string, body?: any): Observable<T> {
     return this.http.patch<T>(`${this.baseUrl}${url}`, body, { headers: this.getHeaders() })
-      .pipe(catchError(this.handleError));
+      .pipe(
+        map((response: any) => {
+          if (this.shouldWrapResponse(url) && response && typeof response === 'object' && !Array.isArray(response) && !response.success) {
+            return { success: true, data: response, errors: null } as T;
+          }
+          return response;
+        }),
+        catchError(this.handleError)
+      );
   }
 
   delete<T>(url: string): Observable<T> {
     return this.http.delete<T>(`${this.baseUrl}${url}`, { headers: this.getHeaders() })
-      .pipe(catchError(this.handleError));
+      .pipe(
+        map((response: any) => {
+          if (this.shouldWrapResponse(url) && response && typeof response === 'object' && !Array.isArray(response) && !response.success) {
+            return { success: true, data: response, errors: null } as T;
+          }
+          return response;
+        }),
+        catchError(this.handleError)
+      );
   }
 
   private handleError(error: HttpErrorResponse): Observable<never> {

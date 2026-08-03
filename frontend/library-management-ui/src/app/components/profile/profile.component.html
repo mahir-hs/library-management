@@ -1,0 +1,47 @@
+<div class="profile-container">
+  <h2>My Profile</h2>
+
+  <div class="error-message" *ngIf="errorMessage">
+    {{ errorMessage }}
+    <button (click)="loadProfile()">Retry</button>
+  </div>
+
+  <div class="loading" *ngIf="loading">Loading profile...</div>
+
+  <div class="profile-card" *ngIf="user && !loading">
+    <div class="profile-header">
+      <div class="avatar">{{ user.fullName.charAt(0) || user.username.charAt(0) || '?' }}</div>
+      <div class="profile-info">
+        <h3>{{ user.fullName }}</h3>
+        <span class="role-badge">{{ user.role }}</span>
+      </div>
+    </div>
+
+    <div class="profile-details">
+      <div class="detail-row">
+        <span class="label">Username</span>
+        <span class="value">{{ user.username }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Email</span>
+        <span class="value">{{ user.email }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Phone</span>
+        <span class="value">{{ user.phoneNumber || 'Not provided' }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Status</span>
+        <span class="value">
+          <span class="badge" [class.badge-active]="user.isActive" [class.badge-inactive]="!user.isActive">
+            {{ user.isActive ? 'Active' : 'Inactive' }}
+          </span>
+        </span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Last Login</span>
+        <span class="value">{{ user.lastLoginAt ? (user.lastLoginAt | date:'medium') : 'N/A' }}</span>
+      </div>
+    </div>
+  </div>
+</div>

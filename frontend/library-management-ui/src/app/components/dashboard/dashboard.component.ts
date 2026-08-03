@@ -50,10 +50,15 @@ export class DashboardComponent implements OnInit {
     }
   }
 
+  private clearLoading(): void {
+    this.loading = false;
+    this.memberLoading = false;
+  }
+
   loadAdminData(): void {
     this.reportService.getSummary().subscribe({
       next: (response) => {
-        this.loading = false;
+        this.clearLoading();
         if (response.success && response.data) {
           this.summary = response.data;
         } else {
@@ -61,7 +66,7 @@ export class DashboardComponent implements OnInit {
         }
       },
       error: (err) => {
-        this.loading = false;
+        this.clearLoading();
         this.errorMessage = err.message || 'Failed to load summary';
       }
     });
@@ -89,6 +94,7 @@ export class DashboardComponent implements OnInit {
 
     this.reservationService.getAll(1, 5).subscribe({
       next: (response) => {
+        this.memberLoading = false;
         if (response.success && response.data) {
           this.myReservations = response.data.items;
         } else {
@@ -96,6 +102,7 @@ export class DashboardComponent implements OnInit {
         }
       },
       error: () => {
+        this.memberLoading = false;
         this.myReservations = [];
       }
     });

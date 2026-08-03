@@ -28,10 +28,6 @@ export class AppLayoutComponent {
     this.router.navigate(['/login']);
   }
 
-  isActive(route: string): boolean {
-    return this.router.url === route;
-  }
-
   get isAdmin(): boolean {
     return this.authService.getRole() === 'Admin';
   }
@@ -42,5 +38,9 @@ export class AppLayoutComponent {
 
   get isMember(): boolean {
     return this.authService.getRole() === 'Member';
+  }
+
+  isMobile(): boolean {
+    return window.innerWidth < 768;
   }
 }

@@ -129,19 +129,13 @@ export class BranchFormComponent implements OnInit {
       this.branchService
         .update(this.branchId, request as UpdateBranchRequest)
         .subscribe({
-          next: (response) => {
+          next: () => {
             this.submitting = false;
-            if (response.success) {
-              this.showToast(
-                'success',
-                `Branch "${this.form.name}" updated successfully.`,
-              );
-              this.router.navigate(['/branches']);
-            } else {
-              this.errorMessage =
-                response.errors?.join(' ') || 'Failed to update branch';
-              this.showToast('error', this.errorMessage);
-            }
+            this.showToast(
+              'success',
+              `Branch "${this.form.name}" updated successfully.`,
+            );
+            this.router.navigate(['/branches']);
           },
           error: (err) => {
             this.submitting = false;
@@ -151,19 +145,13 @@ export class BranchFormComponent implements OnInit {
         });
     } else {
       this.branchService.create(request as CreateBranchRequest).subscribe({
-        next: (response) => {
+        next: () => {
           this.submitting = false;
-          if (response.success) {
-            this.showToast(
-              'success',
-              `Branch "${this.form.name}" created successfully.`,
-            );
-            this.router.navigate(['/branches']);
-          } else {
-            this.errorMessage =
-              response.errors?.join(' ') || 'Failed to create branch';
-            this.showToast('error', this.errorMessage);
-          }
+          this.showToast(
+            'success',
+            `Branch "${this.form.name}" created successfully.`,
+          );
+          this.router.navigate(['/branches']);
         },
         error: (err) => {
           this.submitting = false;

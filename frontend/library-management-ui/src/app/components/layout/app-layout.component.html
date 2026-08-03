@@ -1,43 +1,54 @@
 <div class="layout" [class.sidebar-collapsed]="!sidebarOpen">
-  <aside class="sidebar">
+  <aside class="sidebar" [class.sidebar-open]="sidebarOpen">
     <div class="sidebar-header">
-      <h2 *ngIf="sidebarOpen">Library Mgmt</h2>
-      <button class="toggle-btn" (click)="toggleSidebar()">
-        {{ sidebarOpen ? "◀" : "▶" }}
+      <div class="logo">
+        <span class="logo-icon">📚</span>
+        <span class="logo-text" *ngIf="sidebarOpen">LibraryMS</span>
+      </div>
+      <button class="toggle-btn" (click)="toggleSidebar()" aria-label="Toggle sidebar">
+        {{ sidebarOpen ? '✕' : '☰' }}
       </button>
     </div>
     <nav class="sidebar-nav">
-      <a routerLink="/" routerLinkActive="active">
+      <a routerLink="/" routerLinkActive="active" (click)="sidebarOpen && isMobile() ? toggleSidebar() : null">
         <span class="icon">📊</span>
         <span *ngIf="sidebarOpen">Dashboard</span>
       </a>
-      <a routerLink="/branches" routerLinkActive="active">
+      <a routerLink="/branches" routerLinkActive="active" (click)="sidebarOpen && isMobile() ? toggleSidebar() : null">
         <span class="icon">🏢</span>
         <span *ngIf="sidebarOpen">Branches</span>
       </a>
-      <a routerLink="/books" routerLinkActive="active">
+      <a routerLink="/books" routerLinkActive="active" (click)="sidebarOpen && isMobile() ? toggleSidebar() : null">
         <span class="icon">📚</span>
         <span *ngIf="sidebarOpen">Books</span>
       </a>
-      <a routerLink="/members" routerLinkActive="active">
+      <a routerLink="/members" routerLinkActive="active" (click)="sidebarOpen && isMobile() ? toggleSidebar() : null">
         <span class="icon">👥</span>
         <span *ngIf="sidebarOpen">Members</span>
       </a>
-      <a routerLink="/borrows" routerLinkActive="active">
+      <a routerLink="/borrows" routerLinkActive="active" (click)="sidebarOpen && isMobile() ? toggleSidebar() : null">
         <span class="icon">📋</span>
         <span *ngIf="sidebarOpen">Borrows</span>
       </a>
-      <a routerLink="/reservations" routerLinkActive="active">
+      <a routerLink="/reservations" routerLinkActive="active" (click)="sidebarOpen && isMobile() ? toggleSidebar() : null">
         <span class="icon">⏳</span>
         <span *ngIf="sidebarOpen">Reservations</span>
       </a>
-      <a routerLink="/reports" routerLinkActive="active" *ngIf="isAdminOrLibrarian">
+      <a routerLink="/reports" routerLinkActive="active" *ngIf="isAdminOrLibrarian" (click)="sidebarOpen && isMobile() ? toggleSidebar() : null">
         <span class="icon">📈</span>
         <span *ngIf="sidebarOpen">Reports</span>
       </a>
-      <a routerLink="/users" routerLinkActive="active" *ngIf="isAdmin">
+      <a routerLink="/users" routerLinkActive="active" *ngIf="isAdmin" (click)="sidebarOpen && isMobile() ? toggleSidebar() : null">
         <span class="icon">👤</span>
         <span *ngIf="sidebarOpen">Users</span>
+      </a>
+      <a routerLink="/register" routerLinkActive="active" *ngIf="isAdminOrLibrarian" (click)="sidebarOpen && isMobile() ? toggleSidebar() : null">
+        <span class="icon">➕</span>
+        <span *ngIf="sidebarOpen">Register User</span>
+      </a>
+      <a routerLink="/profile" routerLinkActive="active" (click)="sidebarOpen && isMobile() ? toggleSidebar() : null">
+        <span class="icon">👤</span>
+        <span *ngIf="sidebarOpen">My Profile</span>
       </a>
     </nav>
     <div class="sidebar-footer">
@@ -50,13 +61,12 @@
 
   <div class="main-content">
     <header class="top-bar">
-      <button class="hamburger" (click)="toggleSidebar()">☰</button>
+      <button class="hamburger" (click)="toggleSidebar()" aria-label="Toggle menu">
+        {{ sidebarOpen ? '✕' : '☰' }}
+      </button>
       <h1>Library Management System</h1>
       <div class="user-info">
-        {{
-          authService.getCurrentUser()?.fullName ||
-            authService.getCurrentUser()?.email
-        }}
+        <span class="user-name">{{ authService.getCurrentUser()?.fullName || authService.getCurrentUser()?.email }}</span>
         <span class="role-badge">{{ authService.getRole() }}</span>
       </div>
     </header>
@@ -64,4 +74,7 @@
       <router-outlet></router-outlet>
     </main>
   </div>
+
+  <!-- Mobile sidebar overlay -->
+  <div class="sidebar-overlay" *ngIf="!sidebarOpen && isMobile()" (click)="toggleSidebar()"></div>
 </div>

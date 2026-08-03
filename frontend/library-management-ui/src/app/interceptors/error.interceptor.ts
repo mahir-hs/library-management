@@ -12,8 +12,11 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((error) => {
       if (error.status === 401) {
         const authService = inject(AuthService);
-        authService.logout();
-        router.navigate(['/login']);
+        // Only redirect to login if not already on the login page
+        if (!router.url.includes('/login')) {
+          authService.logout();
+          router.navigate(['/login']);
+        }
       }
       if (error.status === 403) {
         router.navigate(['/']);

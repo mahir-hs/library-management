@@ -20,7 +20,7 @@ export class RegisterComponent implements OnInit {
     password: '',
     fullName: '',
     phoneNumber: '',
-    role: 'Librarian',
+    role: 'Member',
     branchId: '',
   };
   branches: BranchDto[] = [];
@@ -35,6 +35,21 @@ export class RegisterComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    const userRole = this.authService.getRole();
+
+    // Only Admin and Librarian can access registration
+    if (!userRole || !['Admin', 'Librarian'].includes(userRole)) {
+      this.router.navigate(['/']);
+      return;
+    }
+
+    // Set default role based on current user's role
+    if (userRole === 'Librarian') {
+      this.form.role = 'Member';
+    } else {
+      this.form.role = 'Admin';
+    }
+
     this.branchService.getAll(1, 100).subscribe({
       next: (response) => {
         // Unwrap response.data to reach .items
@@ -48,6 +63,15 @@ export class RegisterComponent implements OnInit {
         this.branches = [];
       },
     });
+  }
+
+  get availableRoles(): string[] {
+    const userRole = this.authService.getRole();
+    if (userRole === 'Admin') {
+      return ['Admin', 'Librarian', 'Member'];
+    }
+    // Librarian can only register Members
+    return ['Member'];
   }
 
   onRegister(): void {
