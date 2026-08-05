@@ -1,16 +1,27 @@
 <div class="dashboard">
-  <h2>Dashboard</h2>
+  <div class="dashboard-header">
+    <div>
+      <h2>Dashboard</h2>
+      <p class="dashboard-subtitle">Welcome back! Here's what's happening in your library.</p>
+    </div>
+    <div class="dashboard-actions">
+      <button class="btn btn-primary" routerLink="/books/new">+ Add Book</button>
+    </div>
+  </div>
 
   <div class="error-message" *ngIf="errorMessage && !isMember">
     {{ errorMessage }}
     <button (click)="loadDashboard()">Retry</button>
   </div>
 
-  <div class="loading" *ngIf="loading && !isMember">Loading dashboard...</div>
+  <div class="loading" *ngIf="loading && !isMember">
+    <app-spinner [loading]="true"></app-spinner>
+    <p>Loading dashboard...</p>
+  </div>
 
   <!-- Admin/Librarian Summary Cards -->
   <div class="summary-cards" *ngIf="summary && !loading && !isMember">
-    <div class="card">
+    <div class="summary-card">
       <div class="card-icon">📚</div>
       <div class="card-content">
         <h3>{{ summary.totalBooks }}</h3>
@@ -18,7 +29,7 @@
       </div>
     </div>
 
-    <div class="card">
+    <div class="summary-card">
       <div class="card-icon">📋</div>
       <div class="card-content">
         <h3>{{ summary.activeBorrows }}</h3>
@@ -26,7 +37,7 @@
       </div>
     </div>
 
-    <div class="card">
+    <div class="summary-card">
       <div class="card-icon">⏳</div>
       <div class="card-content">
         <h3>{{ summary.pendingReservations }}</h3>
@@ -34,7 +45,7 @@
       </div>
     </div>
 
-    <div class="card">
+    <div class="summary-card">
       <div class="card-icon">⚠️</div>
       <div class="card-content">
         <h3>{{ summary.overdueBorrows }}</h3>
@@ -47,7 +58,7 @@
   <div class="member-stats" *ngIf="isMember">
     <h3>My Activity</h3>
     <div class="summary-cards">
-      <div class="card">
+      <div class="summary-card">
         <div class="card-icon">📋</div>
         <div class="card-content">
           <h3>{{ activeBorrowsCount }}</h3>
@@ -55,7 +66,7 @@
         </div>
       </div>
 
-      <div class="card">
+      <div class="summary-card">
         <div class="card-icon">⚠️</div>
         <div class="card-content">
           <h3>{{ overdueCount }}</h3>
@@ -63,7 +74,7 @@
         </div>
       </div>
 
-      <div class="card">
+      <div class="summary-card">
         <div class="card-icon">⏳</div>
         <div class="card-content">
           <h3>{{ pendingReservationsCount }}</h3>

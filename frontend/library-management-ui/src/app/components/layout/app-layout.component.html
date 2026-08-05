@@ -1,15 +1,11 @@
-<div class="layout" [class.sidebar-collapsed]="!sidebarOpen">
-  <aside class="sidebar" [class.sidebar-open]="sidebarOpen">
-    <div class="sidebar-header">
-      <div class="logo">
-        <span class="logo-icon">📚</span>
-        <span class="logo-text" *ngIf="sidebarOpen">LibraryMS</span>
-      </div>
-      <button class="toggle-btn" (click)="toggleSidebar()" aria-label="Toggle sidebar">
-        {{ sidebarOpen ? '✕' : '☰' }}
-      </button>
+<div class="layout">
+  <aside class="sidebar" [class.sidebar-open]="sidebarOpen" [class.sidebar-collapsed]="!sidebarOpen">
+    <div class="sidebar-brand">
+      <div class="brand-icon">📖</div>
+      <span class="brand-text">LibMan</span>
     </div>
     <nav class="sidebar-nav">
+      <div class="nav-section">Main</div>
       <a routerLink="/" routerLinkActive="active" (click)="sidebarOpen && isMobile() ? toggleSidebar() : null">
         <span class="icon">📊</span>
         <span *ngIf="sidebarOpen">Dashboard</span>
@@ -34,6 +30,7 @@
         <span class="icon">⏳</span>
         <span *ngIf="sidebarOpen">Reservations</span>
       </a>
+      <div class="nav-section">Management</div>
       <a routerLink="/reports" routerLinkActive="active" *ngIf="isAdminOrLibrarian" (click)="sidebarOpen && isMobile() ? toggleSidebar() : null">
         <span class="icon">📈</span>
         <span *ngIf="sidebarOpen">Reports</span>
@@ -46,6 +43,7 @@
         <span class="icon">➕</span>
         <span *ngIf="sidebarOpen">Register User</span>
       </a>
+      <div class="nav-section">Account</div>
       <a routerLink="/profile" routerLinkActive="active" (click)="sidebarOpen && isMobile() ? toggleSidebar() : null">
         <span class="icon">👤</span>
         <span *ngIf="sidebarOpen">My Profile</span>
@@ -64,10 +62,35 @@
       <button class="hamburger" (click)="toggleSidebar()" aria-label="Toggle menu">
         {{ sidebarOpen ? '✕' : '☰' }}
       </button>
-      <h1>Library Management System</h1>
-      <div class="user-info">
-        <span class="user-name">{{ authService.getCurrentUser()?.fullName || authService.getCurrentUser()?.email }}</span>
-        <span class="role-badge">{{ authService.getRole() }}</span>
+      <h1 class="top-bar-title">Library Management System</h1>
+      <div class="top-bar-actions">
+        <div class="user-menu" [class.open]="userMenuOpen">
+          <button class="user-trigger" (click)="toggleUserMenu()" (clickOutside)="closeUserMenu()">
+            <div class="user-avatar">
+              {{ authService.getCurrentUser()?.fullName?.charAt(0) || authService.getCurrentUser()?.email?.charAt(0) || 'U' }}
+            </div>
+            <div class="user-details">
+              <span class="user-name">{{ authService.getCurrentUser()?.fullName || authService.getCurrentUser()?.email }}</span>
+              <span class="role-badge">{{ authService.getRole() }}</span>
+            </div>
+            <span class="dropdown-arrow">▾</span>
+          </button>
+          <div class="user-dropdown" *ngIf="userMenuOpen">
+            <a routerLink="/profile" (click)="closeUserMenu()">
+              <span class="dropdown-icon">👤</span>
+              <span>My Profile</span>
+            </a>
+            <a routerLink="/settings" (click)="closeUserMenu()">
+              <span class="dropdown-icon">⚙️</span>
+              <span>Settings</span>
+            </a>
+            <div class="dropdown-divider"></div>
+            <button (click)="logout()">
+              <span class="dropdown-icon">🚪</span>
+              <span>Logout</span>
+            </button>
+          </div>
+        </div>
       </div>
     </header>
     <main class="content">
@@ -76,5 +99,5 @@
   </div>
 
   <!-- Mobile sidebar overlay -->
-  <div class="sidebar-overlay" *ngIf="!sidebarOpen && isMobile()" (click)="toggleSidebar()"></div>
+  <div class="sidebar-overlay" *ngIf="sidebarOpen && isMobile()" (click)="toggleSidebar()"></div>
 </div>

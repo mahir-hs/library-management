@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap } from 'rxjs';
+import { Observable, BehaviorSubject, tap, catchError } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { LoginRequest, RegisterRequest, AuthResponse, UserDto } from '../models/auth.models';
 
@@ -33,11 +33,24 @@ export class AuthService {
     sessionStorage.removeItem('authToken');
     sessionStorage.removeItem('refreshToken');
     sessionStorage.removeItem('currentUser');
+    sessionStorage.removeItem('tokenExpiresAt');
     this.currentUserSubject.next(null);
   }
 
   isAuthenticated(): boolean {
-    return !!sessionStorage.getItem('authToken');
+    const token = sessionStorage.getItem('authToken');
+    if (!token) return false;
+    if (this.isTokenExpired()) {
+      this.logout();
+      return false;
+    }
+    return true;
+  }
+
+  isTokenExpired(): boolean {
+    const expiresAt = sessionStorage.getItem('tokenExpiresAt');
+    if (!expiresAt) return true;
+    return new Date(expiresAt).getTime() <= Date.now();
   }
 
   getRole(): string {
@@ -65,6 +78,10 @@ export class AuthService {
     }).pipe(
       tap(response => {
         this.storeAuthData(response);
+      }),
+      catchError(() => {
+        this.logout();
+        throw new Error('Token refresh failed');
       })
     );
   }
@@ -72,6 +89,7 @@ export class AuthService {
   private storeAuthData(response: AuthResponse): void {
     sessionStorage.setItem('authToken', response.accessToken);
     sessionStorage.setItem('refreshToken', response.refreshToken);
+    sessionStorage.setItem('tokenExpiresAt', response.expiresAt);
     const user: UserDto = {
       id: response.userId,
       username: response.username,

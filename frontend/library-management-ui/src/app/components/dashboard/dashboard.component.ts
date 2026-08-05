@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
 import { ReportService } from '../../services/report.service';
 import { BorrowService } from '../../services/borrow.service';
 import { ReservationService } from '../../services/reservation.service';
@@ -13,7 +14,7 @@ import { PaginatedResult, Result } from '../../models/result.models';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, SpinnerComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })

@@ -13,6 +13,7 @@ import { Router } from '@angular/router';
 })
 export class AppLayoutComponent {
   sidebarOpen = true;
+  userMenuOpen = false;
 
   constructor(
     public authService: AuthService,
@@ -21,6 +22,14 @@ export class AppLayoutComponent {
 
   toggleSidebar(): void {
     this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  toggleUserMenu(): void {
+    this.userMenuOpen = !this.userMenuOpen;
+  }
+
+  closeUserMenu(): void {
+    this.userMenuOpen = false;
   }
 
   logout(): void {
